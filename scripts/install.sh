@@ -33,6 +33,17 @@ done
 
 [[ "$VENDOR" =~ ^(claude|cursor|copilot|codex|all)$ ]] || { err "--vendor 必须是 claude|cursor|copilot|codex|all"; exit 2; }
 
+mkdir -p "$TARGET"
+TARGET="$(cd "$TARGET" && pwd)"
+if [[ "$TARGET" == "$KIT_ROOT" ]]; then
+  err "拒绝就地安装：TARGET ($TARGET) 与 KIT_ROOT ($KIT_ROOT) 相同。请 cd 到消费仓后再跑，或用 --target <其它路径>。"
+  exit 3
+fi
+if [[ -f "$TARGET/VERSION" && -f "$TARGET/scripts/install.sh" ]]; then
+  err "TARGET ($TARGET) 看起来是一个 ai-kit 仓本身。拒绝安装。"
+  exit 3
+fi
+
 cd "$TARGET"
 log "目标仓库: $TARGET"
 log "Kit 版本: $KIT_VERSION"
