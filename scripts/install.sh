@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # agentic-mesh-ai-kit / scripts/install.sh
 # 一键铺设 4 厂商 AI 协作矩阵到目标仓库
-# 用法：  bash scripts/install.sh --vendor <claude|cursor|copilot|codex|all> [--codex-override] [--no-spec-kit] [--dry-run]
+# 用法：  bash scripts/install.sh --vendor <claude|cursor|copilot|codex|all> [--codex-override] [--no-spec-kit] [--skip-agent-check] [--dry-run]
 # 设计：幂等 + 非破坏（已存在文件跳过并提示用 upgrade.sh）
 # Spec-Kit：默认开启（依赖 uvx）；如需关闭加 --no-spec-kit
+# Agent CLI 探测：默认让 spec-kit 检测 vendor CLI（claude/cursor-agent/codex）是否已装；--skip-agent-check 显式跳过（CI / 多家场景）
 
 set -euo pipefail
 
@@ -13,6 +14,7 @@ TARGET="${TARGET:-$PWD}"
 VENDOR="all"
 CODEX_OVERRIDE="false"
 WITH_SPEC_KIT="true"   # 默认开启；用 --no-spec-kit 关闭
+SKIP_AGENT_CHECK="false"  # 默认让 spec-kit 探测 vendor CLI；--skip-agent-check 跳过
 DRY_RUN="false"
 
 log()  { printf '\033[1;34m[install]\033[0m %s\n' "$*"; }
@@ -25,6 +27,7 @@ while [[ $# -gt 0 ]]; do
     --codex-override) CODEX_OVERRIDE="true"; shift ;;
     --with-spec-kit)  WITH_SPEC_KIT="true"; shift ;;   # 兼容旧参数（已默认开启）
     --no-spec-kit)    WITH_SPEC_KIT="false"; shift ;;
+    --skip-agent-check) SKIP_AGENT_CHECK="true"; shift ;;
     --dry-run)        DRY_RUN="true"; shift ;;
     --target)         TARGET="$2"; shift 2 ;;
     -h|--help)
@@ -119,8 +122,30 @@ step_spec_kit() {
   log "[step 2] Spec-Kit init"
   local integ="$VENDOR"
   [[ "$VENDOR" == "all" ]] && integ="claude"  # all 时主集成走 claude
+
+  # Vendor CLI sniff（spec-kit 探测真相一致；copilot 是 IDE 扩展，spec-kit 本身不检测）
+  local vendor_bin=""
+  case "$integ" in
+    claude)  vendor_bin="claude" ;;
+    cursor)  vendor_bin="cursor-agent" ;;
+    codex)   vendor_bin="codex" ;;
+    copilot) vendor_bin="" ;;  # 无独立 CLI
+  esac
+  local ignore_flag=""
+  if [[ -n "$vendor_bin" ]] && ! command -v "$vendor_bin" >/dev/null 2>&1; then
+    if [[ "$SKIP_AGENT_CHECK" == "true" ]]; then
+      warn "vendor CLI '$vendor_bin' 未安装；--skip-agent-check 已指定，将传 --ignore-agent-tools 给 spec-kit（模板会下发，但 \$speckit-* / /speckit.* 命令需先装 CLI 才能跑）"
+      ignore_flag="--ignore-agent-tools"
+    else
+      warn "vendor CLI '$vendor_bin' 未在本机找到。"
+      warn "  若仅需 spec-kit 模板下发（CI / 多家并存场景），重跑加：--skip-agent-check"
+      warn "  否则先安装 '$vendor_bin'，spec-kit 才会继续 init。"
+      warn "  当前将继续调用 spec-kit；若失败 install 不中断，其余 9 步照常完成。"
+    fi
+  fi
+
   if [[ "$DRY_RUN" == "true" ]]; then
-    log "DRY: uvx --from git+https://github.com/github/spec-kit.git specify init . --integration $integ --here --force --ignore-agent-tools"
+    log "DRY: uvx --from git+https://github.com/github/spec-kit.git specify init . --integration $integ --here --force $ignore_flag"
     return
   fi
   if ! command -v uvx >/dev/null 2>&1; then
@@ -131,8 +156,8 @@ step_spec_kit() {
     err "  若本项目不需要 Spec-Kit 五件套，请改用：  install.sh --vendor $VENDOR --no-spec-kit"
     exit 4
   fi
-  uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here --force --ignore-agent-tools \
-    || warn "spec-kit init 非零退出 (可能已初始化，可忽略)"
+  uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here --force $ignore_flag \
+    || warn "spec-kit init 非零退出 (可能已初始化、或 vendor CLI 缺失；其余步骤继续)"
 }
 
 # --- step 3 · Skills (agentskills.io) ---------------------------
@@ -143,9 +168,9 @@ step_skills() {
   for sk in "${skills[@]}"; do
     local src="$KIT_ROOT/skills/$sk"
     [[ -d "$src" ]] || { warn "skill missing: $sk"; continue; }
-    wants claude  && copy_skill_dir "$src" ".claude/skills/$sk"
-    wants cursor  && copy_skill_dir "$src" ".cursor/skills/$sk"
-    wants codex   && copy_skill_dir "$src" ".codex/skills/$sk"
+    wants claude  && copy_skill_dir "$src" ".claude/skills/$sk" || true
+    wants cursor  && copy_skill_dir "$src" ".cursor/skills/$sk" || true
+    wants codex   && copy_skill_dir "$src" ".codex/skills/$sk"  || true
     # Copilot 暂无 skills 等价物；通过 instructions 文件引用
   done
 }
@@ -180,9 +205,9 @@ step_agents() {
       render_tmpl "$KIT_ROOT/templates/agents/claude/$a.md" ".claude/agents/$a.md"
     done
   fi
-  wants cursor  && render_tmpl "$KIT_ROOT/templates/agents/cursor/reviewer.md" ".cursor/agents/reviewer.md"
-  wants copilot && render_tmpl "$KIT_ROOT/templates/agents/copilot/reviewer.md" ".github/chatmodes/reviewer.chatmode.md"
-  wants codex   && render_tmpl "$KIT_ROOT/templates/agents/codex/reviewer.md" ".codex/agents/reviewer.md"
+  wants cursor  && render_tmpl "$KIT_ROOT/templates/agents/cursor/reviewer.md" ".cursor/agents/reviewer.md" || true
+  wants copilot && render_tmpl "$KIT_ROOT/templates/agents/copilot/reviewer.md" ".github/chatmodes/reviewer.chatmode.md" || true
+  wants codex   && render_tmpl "$KIT_ROOT/templates/agents/codex/reviewer.md" ".codex/agents/reviewer.md" || true
 }
 
 # --- step 6 · Hooks ---------------------------------------------
@@ -195,31 +220,31 @@ step_hooks() {
     copy_if_absent "$sh" ".ai-kit/hooks/_shared/$name"
     [[ "$DRY_RUN" == "true" ]] || chmod +x ".ai-kit/hooks/_shared/$name" 2>/dev/null || true
   done
-  wants claude  && render_tmpl "$KIT_ROOT/templates/hooks/claude/settings.json.tmpl" ".claude/settings.json"
-  wants cursor  && render_tmpl "$KIT_ROOT/templates/hooks/cursor/hooks.json.tmpl" ".cursor/hooks.json"
+  wants claude  && render_tmpl "$KIT_ROOT/templates/hooks/claude/settings.json.tmpl" ".claude/settings.json" || true
+  wants cursor  && render_tmpl "$KIT_ROOT/templates/hooks/cursor/hooks.json.tmpl" ".cursor/hooks.json" || true
   # Copilot 走 CI-Actions（见 step 9）
   # Codex hooks 必须是 .codex/hooks.json 或 inline 到 .codex/config.toml 的 [hooks] 段；
   # 不识别独立的 .codex/hooks.toml 文件。
-  wants codex   && render_tmpl "$KIT_ROOT/templates/hooks/codex/hooks.json.tmpl" ".codex/hooks.json"
+  wants codex   && render_tmpl "$KIT_ROOT/templates/hooks/codex/hooks.json.tmpl" ".codex/hooks.json" || true
 }
 
 # --- step 7 · MCP -----------------------------------------------
 step_mcp() {
   log "[step 7] MCP"
-  wants claude  && render_tmpl "$KIT_ROOT/templates/mcp/claude/.mcp.json.tmpl" ".mcp.json"
-  wants cursor  && render_tmpl "$KIT_ROOT/templates/mcp/cursor/.cursor-mcp.json.tmpl" ".cursor/mcp.json"
-  wants copilot && render_tmpl "$KIT_ROOT/templates/mcp/copilot/.vscode-mcp.json.tmpl" ".vscode/mcp.json"
+  wants claude  && render_tmpl "$KIT_ROOT/templates/mcp/claude/.mcp.json.tmpl" ".mcp.json" || true
+  wants cursor  && render_tmpl "$KIT_ROOT/templates/mcp/cursor/.cursor-mcp.json.tmpl" ".cursor/mcp.json" || true
+  wants copilot && render_tmpl "$KIT_ROOT/templates/mcp/copilot/.vscode-mcp.json.tmpl" ".vscode/mcp.json" || true
   # Codex 的 MCP 与 settings 共用单一 .codex/config.toml（不存在 .codex/mcp.json 这种独立文件），
   # 整份 config.toml 在 step 8 一次性渲染。
-  wants codex   && log "[step 7] codex: MCP 段位于 .codex/config.toml [mcp_servers.*]（与 settings 同文件，由 step 8 渲染）"
+  wants codex   && log "[step 7] codex: MCP 段位于 .codex/config.toml [mcp_servers.*]（与 settings 同文件，由 step 8 渲染）" || true
 }
 
 # --- step 8 · Settings ------------------------------------------
 step_settings() {
   log "[step 8] Settings"
-  wants claude  && render_tmpl "$KIT_ROOT/templates/settings/claude/settings.json.tmpl" ".claude/settings.local.json"
-  wants cursor  && render_tmpl "$KIT_ROOT/templates/settings/cursor/settings.json.tmpl" ".cursor/settings.json"
-  wants copilot && warn "Copilot 设置需 merge 到 .vscode/settings.json，模板见 templates/settings/copilot/README.md"
+  wants claude  && render_tmpl "$KIT_ROOT/templates/settings/claude/settings.json.tmpl" ".claude/settings.local.json" || true
+  wants cursor  && render_tmpl "$KIT_ROOT/templates/settings/cursor/settings.json.tmpl" ".cursor/settings.json" || true
+  wants copilot && warn "Copilot 设置需 merge 到 .vscode/settings.json，模板见 templates/settings/copilot/README.md" || true
   if wants codex; then
     # 项目级 .codex/config.toml 一文件承载：settings + sandbox + skills/agents + MCP servers。
     render_tmpl "$KIT_ROOT/templates/codex/config.toml.tmpl" ".codex/config.toml"
