@@ -15,7 +15,7 @@ skills:
 
 # Reviewer · Codex 变体
 
-> Codex CLI 通过 profile + sandbox 实现隔离。本文件落 `.codex/agents/reviewer.md`，由 `~/.codex/config.toml` 的 `[agents] search_paths` 识别。
+> Codex CLI 通过 profile + sandbox 实现隔离。本文件落 `.codex/agents/reviewer.md`，由项目级 `.codex/config.toml` 的 `[agents] search_paths` 识别（同样配置用户级也可写在 `~/.codex/config.toml`）。
 
 ## 关键差异
 
@@ -23,7 +23,7 @@ skills:
 |--------|-------|
 | `permissionMode: read-only` | `approval_policy: read-only` + `sandbox.mode: workspace` |
 | `isolation: worktree` | 通过 Codex 内置进程隔离 |
-| `hooks.SubagentStop` | OS-level post-exec hook（`config.toml [hooks] post_edit`） |
+| `hooks.SubagentStop` | `.codex/hooks.json` 的 `PostToolUse` 或 `.codex/config.toml` inline `[[hooks.PostToolUse]]`（Codex 仅 6 事件，无 SubagentStop） |
 
 ## 落盘机制
 

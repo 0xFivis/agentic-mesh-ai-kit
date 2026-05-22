@@ -185,7 +185,9 @@ step_hooks() {
   wants claude  && render_tmpl "$KIT_ROOT/templates/hooks/claude/settings.json.tmpl" ".claude/settings.json"
   wants cursor  && render_tmpl "$KIT_ROOT/templates/hooks/cursor/hooks.json.tmpl" ".cursor/hooks.json"
   # Copilot 走 CI-Actions（见 step 9）
-  wants codex   && render_tmpl "$KIT_ROOT/templates/hooks/codex/hooks.toml.tmpl" ".codex/hooks.toml"
+  # Codex hooks 必须是 .codex/hooks.json 或 inline 到 .codex/config.toml 的 [hooks] 段；
+  # 不识别独立的 .codex/hooks.toml 文件。
+  wants codex   && render_tmpl "$KIT_ROOT/templates/hooks/codex/hooks.json.tmpl" ".codex/hooks.json"
 }
 
 # --- step 7 · MCP -----------------------------------------------
@@ -194,7 +196,9 @@ step_mcp() {
   wants claude  && render_tmpl "$KIT_ROOT/templates/mcp/claude/.mcp.json.tmpl" ".mcp.json"
   wants cursor  && render_tmpl "$KIT_ROOT/templates/mcp/cursor/.cursor-mcp.json.tmpl" ".cursor/mcp.json"
   wants copilot && render_tmpl "$KIT_ROOT/templates/mcp/copilot/.vscode-mcp.json.tmpl" ".vscode/mcp.json"
-  wants codex   && warn "Codex MCP 配置在 ~/.codex/config.toml (用户级)。模板见 templates/mcp/codex/config.toml.tmpl，需手动 merge。"
+  # Codex 的 MCP 与 settings 共用单一 .codex/config.toml（不存在 .codex/mcp.json 这种独立文件），
+  # 整份 config.toml 在 step 8 一次性渲染。
+  wants codex   && log "[step 7] codex: MCP 段位于 .codex/config.toml [mcp_servers.*]（与 settings 同文件，由 step 8 渲染）"
 }
 
 # --- step 8 · Settings ------------------------------------------
@@ -203,7 +207,11 @@ step_settings() {
   wants claude  && render_tmpl "$KIT_ROOT/templates/settings/claude/settings.json.tmpl" ".claude/settings.local.json"
   wants cursor  && render_tmpl "$KIT_ROOT/templates/settings/cursor/settings.json.tmpl" ".cursor/settings.json"
   wants copilot && warn "Copilot 设置需 merge 到 .vscode/settings.json，模板见 templates/settings/copilot/README.md"
-  wants codex   && warn "Codex 设置在 ~/.codex/config.toml (用户级)，模板见 templates/settings/codex/config.toml.tmpl"
+  if wants codex; then
+    # 项目级 .codex/config.toml 一文件承载：settings + sandbox + skills/agents + MCP servers。
+    render_tmpl "$KIT_ROOT/templates/codex/config.toml.tmpl" ".codex/config.toml"
+    warn "Codex 机器级 key (openai_base_url / chatgpt_base_url / model_provider / model_providers / notify / profile / profiles / experimental_realtime_ws_base_url / otel) 项目级不生效，需手放 ~/.codex/config.toml。"
+  fi
 }
 
 # --- step 9 · CI prompts (SSOT) ---------------------------------

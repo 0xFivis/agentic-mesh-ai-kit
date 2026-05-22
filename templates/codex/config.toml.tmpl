@@ -1,0 +1,67 @@
+# REFERENCE ONLY: sanitized sample, not for production
+# agentic-mesh-ai-kit/templates/codex/config.toml.tmpl
+#
+# 落点：项目根 .codex/config.toml（项目级；仅在该项目被 `codex` 标记为 trusted 后生效）
+#
+# 单一 SSOT：本文件同时承载 settings + sandbox + skills/agents + MCP servers。
+# Codex 不支持项目级把 mcp / settings 拆成多个独立 .toml —— 项目级只有 .codex/config.toml 一个入口；
+# 用户级 ~/.codex/config.toml 也是同一结构（同一文件容纳所有段）。
+#
+# Hooks 走独立 .codex/hooks.json（见 templates/hooks/codex/hooks.json.tmpl），
+# 或 inline 在本文件 [[hooks.<Event>]] 表中（二选一，不要同时定义）。
+#
+# 以下 key 在项目级会被 Codex 忽略并 warn，必须放 ~/.codex/config.toml：
+#   openai_base_url · chatgpt_base_url · model_provider · model_providers
+#   notify · profile · profiles · experimental_realtime_ws_base_url · otel
+#
+# 参考：https://developers.openai.com/codex/config-reference
+
+# ──────────────────────────────────────────────────────────
+# Settings（可项目级覆盖）
+# ──────────────────────────────────────────────────────────
+model           = "gpt-5-codex"
+weak_model      = "gpt-5-codex-mini"
+approval_policy = "on-request"
+# 合法值：untrusted | on-request | never | { granular = { ... } }
+
+# ──────────────────────────────────────────────────────────
+# Sandbox（可项目级覆盖）
+# ──────────────────────────────────────────────────────────
+sandbox_mode = "workspace-write"
+# 合法值：read-only | workspace-write | danger-full-access
+
+[sandbox_workspace_write]
+network_access         = false
+exclude_slash_tmp      = false
+exclude_tmpdir_env_var = false
+# writable_roots = ["./", "/tmp/"]
+#
+# 注：原 ai-kit 模板里的 file_reads_blocklist / file_writes 非官方 schema 键。
+# 若需要按文件名/路径 deny 读取，请用 [permissions.<name>].filesystem
+# 命名 permission profile（见 config-reference Permissions 章节）。
+
+# ──────────────────────────────────────────────────────────
+# Skills / Agents（kit 约定的 search_paths；非官方 schema）
+# 真正生效的官方写法：
+#   [[skills.config]]   path = "<skill-dir>"   enabled = true
+#   [agents.<name>]     description = "..."    config_file = "..."
+# 这里保留 ai-kit 历史约定以便其他厂商共用同一份目录布局。
+# ──────────────────────────────────────────────────────────
+[skills]
+search_paths = [".codex/skills", ".claude/skills"]
+
+[agents]
+search_paths = [".codex/agents", ".claude/agents"]
+
+# ──────────────────────────────────────────────────────────
+# MCP servers（项目级合法 —— 与 settings 共享本文件）
+# 任何 MCP 修改都改这里；Codex 不读 .codex/mcp.json / 单独 mcp 文件。
+# ──────────────────────────────────────────────────────────
+[mcp_servers.filesystem]
+command = "npx"
+args    = ["-y", "@modelcontextprotocol/server-filesystem", "."]
+
+[mcp_servers.github]
+command = "npx"
+args    = ["-y", "@modelcontextprotocol/server-github"]
+env     = { GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}" }

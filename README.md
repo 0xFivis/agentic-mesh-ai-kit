@@ -93,7 +93,7 @@ CLAUDE.md → AGENTS.md                # symlink for Claude Code
 apps/AGENTS.md   packages/AGENTS.md   ops/AGENTS.md   ...   # 10 subdir L1s (non-destructive)
 .claude/{skills,agents,settings.json,settings.local.json}
 .cursor/{skills,agents,rules,hooks.json,mcp.json,settings.json}
-.codex/{skills,agents,hooks.toml}    # config.toml stays at ~/.codex/
+.codex/{skills,agents,hooks.json,config.toml}   # config.toml = settings+sandbox+MCP (项目级单一入口)
 .github/{copilot-instructions.md,instructions/,chatmodes/,ci-prompts/review.md}
 .vscode/mcp.json                     # Copilot MCP
 .mcp.json                            # Claude MCP

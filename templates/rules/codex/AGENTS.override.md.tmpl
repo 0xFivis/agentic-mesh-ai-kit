@@ -6,7 +6,7 @@
 
 ## Codex-only 行为
 
-- **sandbox.mode**：本目录强制 `workspace`（即使 `~/.codex/config.toml` 是 `off`）
+- **sandbox.mode**：本目录强制 `workspace-write`（即使项目级 `.codex/config.toml` 或用户级 `~/.codex/config.toml` 写的是 `read-only` / `danger-full-access`）
 - **审批策略**：本目录强制 `suggest`（不可 `full-auto`）
 - **可执行命令白名单**：
   - 允许：`{{allowed-cmds}}`（例：`pytest`, `ruff`, `npm test`）

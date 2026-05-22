@@ -35,7 +35,7 @@
 - [ ] Claude：拷 [`templates/settings/claude/settings.json.template`](../settings/claude/settings.json.template) → `.claude/settings.json`（含 `data-redline` alwaysLoaded）
 - [ ] Cursor：拷 [`templates/settings/cursor/hooks.json.template`](../settings/cursor/hooks.json.template) → `.cursor/hooks.json`
 - [ ] Copilot：把 [`templates/settings/copilot/vscode-settings.snippet.json`](../settings/copilot/vscode-settings.snippet.json) 内容 merge 到 `.vscode/settings.json`（启用 `chat.useCustomAgentHooks` Preview）
-- [ ] Codex：参 [`templates/settings/codex/config.toml.template`](../settings/codex/config.toml.template) 配 `~/.codex/config.toml`
+- [ ] Codex：拷 [`templates/codex/config.toml.tmpl`](../codex/config.toml.tmpl) → `.codex/config.toml`（项目级，单一文件承载 settings + sandbox + MCP servers；机器级 key 仍放 `~/.codex/config.toml`）
 
 ## 4. Subagents（按需）
 

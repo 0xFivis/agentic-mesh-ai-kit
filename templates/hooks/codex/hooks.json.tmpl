@@ -1,0 +1,71 @@
+{
+  "//": "REFERENCE ONLY: sanitized sample, not for production",
+  "//file": "agentic-mesh-ai-kit/templates/hooks/codex/hooks.json.tmpl",
+  "//drop": "落点：项目根 .codex/hooks.json（项目级；仅 trusted 项目生效）。也可改为 inline 到 .codex/config.toml 的 [[hooks.<Event>]] 段中，二选一。",
+  "//format": "Codex 只识别 .codex/hooks.json 或 config.toml [hooks] 内嵌；不识别 .codex/hooks.toml 这种独立 TOML 文件。",
+  "//events": "Codex 仅 6 个事件：SessionStart · UserPromptSubmit · PreToolUse · PermissionRequest · PostToolUse · Stop",
+  "//handler": "仅 type:\"command\" 处理器生效（无 http / mcp_tool / prompt / agent handler）",
+  "//ref": "https://developers.openai.com/codex/hooks",
+
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".ai-kit/hooks/_shared/check-needs-clarification.sh",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
+
+  "PreToolUse": [
+    {
+      "matcher": "^Bash$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".ai-kit/hooks/_shared/check-no-verify.sh",
+          "timeout": 5,
+          "statusMessage": "Checking shell command for --no-verify / dangerous flags"
+        }
+      ]
+    },
+    {
+      "matcher": "^apply_patch$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".ai-kit/hooks/_shared/check-no-secrets.sh",
+          "timeout": 10,
+          "statusMessage": "Scanning patch for secrets"
+        }
+      ]
+    }
+  ],
+
+  "PostToolUse": [
+    {
+      "matcher": "^apply_patch$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".ai-kit/hooks/_shared/lint-changed.sh",
+          "timeout": 30
+        }
+      ]
+    }
+  ],
+
+  "Stop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".ai-kit/hooks/_shared/check-task-verification.sh",
+          "timeout": 10
+        }
+      ]
+    }
+  ]
+}

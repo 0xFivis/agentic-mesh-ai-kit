@@ -441,7 +441,7 @@ wait
 | Claude Code | `.claude/settings.json` 全局 + skill/subagent frontmatter 局部 | 28+ 事件（PreToolUse / PostToolUse / SubagentStart / SubagentStop / PreCompact / TaskCreated / WorktreeCreate / FileChanged / …）·5 种 handler：`command` / `http` / `mcp_tool` / `prompt` / `agent`（[官文](https://code.claude.com/docs/en/hooks)）|
 | Cursor | `.cursor/hooks.json`（以及 `~/.cursor/hooks.json`）| **Enterprise / Team / Project / User 四级合并** · 21 个事件（agent 18 + Tab 2 + workspace 1）· 原生兼容 Claude Code：退出码 2 = deny，提供 `CLAUDE_PROJECT_DIR` 别名（[官文](https://cursor.com/docs/hooks)）。**配套 shell 脚本可与 Claude 复用同一份**（属 OS 级工具，不算红线"翻译派生"——派生指 `hooks.json` / `settings.json` **配置文件**派生）|
 | GitHub Copilot | agent frontmatter `hooks` 字段（**Preview**，需 `chat.useCustomAgentHooks` setting）| 仅在该 custom agent 激活时生效（[官文](https://code.visualstudio.com/docs/copilot/customization/custom-agents)）。与 GitHub Actions / `.github/workflows/` **不是同一个东西**，不要混淆 |
-| OpenAI Codex | `~/.codex/hooks.json` / `<repo>/.codex/hooks.json`，也可在 `config.toml` 内嵌 `[hooks]` | 6 个事件（SessionStart / PreToolUse / PermissionRequest / PostToolUse / UserPromptSubmit / Stop）· 仅 `type: command` 处理器生效（[官文](https://developers.openai.com/codex/hooks)）。沙箱（Seatbelt/landlock）与 execpolicy（`.codex/rules/*.rules`）是**与 hooks 配合使用的独立机制**，不要当 hooks |
+| OpenAI Codex | `~/.codex/hooks.json` / `<repo>/.codex/hooks.json`，也可在 `config.toml` 内嵌 `[hooks]` | 6 个事件（SessionStart / PreToolUse / PermissionRequest / PostToolUse / UserPromptSubmit / Stop）· 仅 `type: command` 处理器生效（[官文](https://developers.openai.com/codex/hooks)）。**不识别 `.codex/hooks.toml`这种独立 TOML 文件**；只能走 `hooks.json` 或 `config.toml [hooks]` 二选一。沙箱（Seatbelt/landlock）与 execpolicy（`.codex/rules/*.rules`）是**与 hooks 配合使用的独立机制**，不要当 hooks |
 
 **配置示例**（`.claude/settings.json`）：
 
@@ -473,10 +473,10 @@ wait
 |---|---|---|---|
 | Claude Code | 项目 `.mcp.json` · 用户/本地 `~/.claude.json` · 企业 `managed-mcp.json`（allowlist/denylist） | JSON · `mcpServers` | 3 传输：HTTP / SSE(已弃用) / stdio · OAuth 走 `/mcp` · plugin 可在 `plugin.json` inline 声明 · `MAX_MCP_OUTPUT_TOKENS` 控制大输出 |
 | Cursor | 项目 `.cursor/mcp.json` · 全局 `~/.cursor/mcp.json` | JSON · `mcpServers` | 3 传输：stdio / SSE / Streamable HTTP · OAuth 固定回调 `cursor://anysphere.cursor-mcp/oauth/callback` · stdio 独有 `envFile` |
-| OpenAI Codex | 全局 `~/.codex/config.toml` · 项目 `.codex/config.toml`（trusted 项目） | **TOML** · `[mcp_servers.<name>]` | 2 传输：STDIO / Streamable HTTP · `codex mcp login <name>` 走 OAuth · 独有 `enabled_tools` / `disabled_tools` / `default_tools_approval_mode` 工具级管控 |
+| OpenAI Codex | 全局 `~/.codex/config.toml` · 项目 `.codex/config.toml`（trusted 项目） | **TOML** · `[mcp_servers.<name>]` | 2 传输：STDIO / Streamable HTTP · `codex mcp login <name>` 走 OAuth · 独有 `enabled_tools` / `disabled_tools` / `default_tools_approval_mode` 工具级管控。**MCP 与 settings 合用同一份 `config.toml`**：Codex 不支持 `.codex/mcp.json` 或拆多个 `.toml` 文件，项目级只有 `.codex/config.toml` 一个入口 |
 | GitHub Copilot | 工作区 `.vscode/mcp.json` · 用户 profile（`MCP: Open User Configuration`）· custom agent frontmatter `mcp-servers:`（仅 `target: github-copilot` cloud agents） | JSON · **`servers`**（不是 `mcpServers`） | 可从 Extensions 视图按 `@mcp` 装；首次启动需 trust；独有 `sandboxEnabled: true`（macOS/Linux 沙箱）+ Settings Sync |
 
-**模板**：[`templates/mcp/.mcp.json.template`](templates/mcp/.mcp.json.template) 直接可用于 Claude / Cursor（驼峰键 + 项目根放置）；Copilot 需另存为 `.vscode/mcp.json` 并把顶层 `mcpServers` 改成 `servers`；Codex 需翻译为 TOML 写入 `~/.codex/config.toml`。详细对照见 [`_research/15_mcp-support-matrix.md`](_research/15_mcp-support-matrix.md)。
+**模板**：[`templates/mcp/.mcp.json.template`](templates/mcp/.mcp.json.template) 直接可用于 Claude / Cursor（驼峰键 + 项目根放置）；Copilot 需另存为 `.vscode/mcp.json` 并把顶层 `mcpServers` 改成 `servers`；Codex 需翻译为 TOML 合入 `.codex/config.toml`（项目级）或 `~/.codex/config.toml`（用户级）的 `[mcp_servers.<name>]` 表，与 settings 同文件（ai-kit 已完成该合并，见 [`templates/codex/config.toml.tmpl`](templates/codex/config.toml.tmpl)）。详细对照见 [`_research/15_mcp-support-matrix.md`](_research/15_mcp-support-matrix.md)。
 
 ### 2.7 Memory
 

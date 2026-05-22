@@ -1,7 +1,7 @@
 <!-- REFERENCE ONLY: sanitized sample, not for production -->
 # agents · OpenAI Codex CLI
 
-Codex 的 subagent 通过 `.codex/agents/<name>.md` 识别，由 `~/.codex/config.toml` 的 `[agents] search_paths` 启用。
+Codex 的 subagent 通过 `.codex/agents/<name>.md` 识别，由项目级 `.codex/config.toml` 的 `[agents] search_paths` 启用（同一份 `[agents] search_paths` 也可写在用户级 `~/.codex/config.toml`）。
 
 字段差异 vs Claude：
 - `model` → `gpt-5-codex` 系列
