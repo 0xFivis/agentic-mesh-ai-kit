@@ -1,0 +1,18 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+---
+description: 编辑 contracts 前必须 link 对应 spec.md 与 ADR-ID
+globs:
+  - "contracts/**"
+alwaysApply: false
+---
+
+# Contracts-First Rule
+
+任何对 `contracts/<bctx>/openapi/*.yaml` / `asyncapi/*.yaml` / `proto/*.proto` 的修改必须：
+
+1. **先有 spec**：在 PR 描述里引用 `specs/<feature-id>/spec.md` + `plan.md`（未 Approve 拒绝合并）
+2. **先有 ADR**（如涉及横切决策）：引用 `docs/adr/ADR-NNN`
+3. **走 contract-first skill**：用 `/contract-first <feature-id> --step=4` 生成草稿，不要手撸 YAML
+4. **`_common/` 改动单独 PR**：必须 Arch Lead Approve
+
+违反 → 评审打 ❌ + 回流。

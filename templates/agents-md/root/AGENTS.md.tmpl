@@ -1,0 +1,94 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+<!--
+agentic-mesh-ai-kit/templates/agents-md/root/AGENTS.md.tmpl
+安装位置：仓库根 AGENTS.md（由 install.sh step 1 落地）
+Claude Code 通过 CLAUDE.md symlink → 本文件读取
+其他家（Cursor / GitHub Copilot / OpenAI Codex CLI）原生识别 AGENTS.md
+-->
+
+# AGENTS.md · {{project-name}}
+
+> 本文件是仓库的 **L1 入口**（人 + AI 共读）。任何 agent 在动手之前必须先读本文 + 仓库 README + `docs/architecture/`。
+
+## 1. 仓库定位
+
+- **项目**：{{project-name}}
+- **owner**：{{owner}}
+- **类型**：{{repo-type}}（mono-repo / micro-repo / library / app）
+- **上游平台 kit**：[agentic-mesh-arch-kit](https://github.com/{{org}}/agentic-mesh-arch-kit) · [agentic-mesh-ai-kit](https://github.com/{{org}}/agentic-mesh-ai-kit)
+
+## 2. 上下游
+
+- **依赖**：<TBD - 列出上游服务 / 库 / 数据源>
+- **被依赖**：<TBD - 列出下游消费方>
+- **跨上下文交互**：仅通过 `contracts/<bctx>/` 暴露的 OpenAPI / AsyncAPI，禁直连私有数据表
+
+## 3. 关键命令
+
+```bash
+# 安装
+{{install-cmd}}
+
+# 本地运行
+{{run-cmd}}
+
+# 测试
+{{test-cmd}}
+
+# Lint
+{{lint-cmd}}
+```
+
+## 4. 目录速览
+
+| 目录 | 内容 |
+|------|------|
+| `apps/` | 部署单元（service / web / cli） |
+| `packages/` | 内部共享库 |
+| `contracts/` | OpenAPI / AsyncAPI / Proto（按 bctx 分） |
+| `docs/architecture/` | 8 章架构骨架 |
+| `docs/adr/` | 架构决策记录（ADR-NNN） |
+| `docs/services/` | 服务详设（svc-NN-<name>） |
+| `specs/` | feature 五件套（spec / plan / data-model / contracts / quickstart） |
+| `ops/` | runbooks / dashboards / alerts / slo |
+| `testing/` | e2e / integration / load / contract / fixtures |
+
+## 5. 红线（HARD STOPS）
+
+- ❌ **禁** 跨 bounded-context 直接读对方私有数据表 → 必须走 `contracts/<bctx>/openapi/<svc>` 暴露的 API
+- ❌ **禁** 真实凭证 / 私钥 / Token 落 git（必须 secret manager） — 触线 → rotate + `git filter-repo`
+- ❌ **禁** L4 高敏数据（凭证 / 私钥 / Token / PII 明文）入 AI prompt → 必须 placeholder 化
+- ❌ **禁** `git commit --no-verify` / `git push --force` 到受保护分支
+- ❌ **禁** ADR 决策点只给单候选 → 必须 ≥ 2 候选 + 决策矩阵 + 排除理由
+- ❌ **禁** 跨上下文共享类型落到非白名单（白名单：envelope / error / pagination / timestamp / money，路径仅限 `contracts/_common/`）
+
+## 6. AI 协作 SOP
+
+本仓使用 [agentic-mesh-ai-kit](https://github.com/{{org}}/agentic-mesh-ai-kit) 提供的 12 个 skill + 4 类 subagent + 4 家原生配置。
+
+- 完整 SOP：`docs/playbook.md`（kit 安装时拷入）
+- T0 → T7 阶段闸门：见 `docs/sop/`
+- 12 skill 索引：`.skills/README.md` 或 agent 各自 `<agent>/skills/`
+
+### 6.1 何时召回哪个 skill
+
+| 阶段 | 主调 skill |
+|------|------------|
+| T0 Intake | `tech-intake` |
+| T1 横切影响 | `bc-impact-map` |
+| T2 详设 | `contract-first`（必经）+ `adr-writing` / `std-writing`（横切决策时） |
+| T3 任务拆分 | `task-decomp-fanout` |
+| T4.1 / T4.3 Gate | `gate-checklist`（双模） |
+| T4.2 测试 | `qa-cases` |
+| T6 发布 | `release-canary` |
+| T7 复盘 | `retro-audit` |
+| 横切常驻 | `data-redline`（alwaysLoaded） |
+
+## 7. 子目录约束
+
+- 各 `apps/<svc>` / `packages/<lib>` 子域若需独立边界声明，调用 `scaffold-agents-md` skill 生成 AGENTS.md 占位（never overwrite）。
+- 10 个固定通用目录的 AGENTS.md 由 ai-kit `install.sh` step 1.5 自动 lay-down（非破坏性）。
+
+## 8. 版本
+
+- `.arch-kit-version` · `.ai-kit-version`（本仓使用的两个 kit 版本快照，升级用 `upgrade-arch-kit.sh` / `upgrade.sh`）

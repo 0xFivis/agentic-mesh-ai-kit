@@ -1,0 +1,20 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · ops/
+
+## Scope
+运维资产：runbooks / dashboards / alerts / slo / IaC 片段。**禁** 在此处放业务代码或临时调试脚本。
+
+## Local Conventions
+- `ops/runbooks/<scenario>.md`（每个故障 / 维护场景一份，含 trigger / steps / rollback / verify）
+- `ops/dashboards/<svc>.json`（Grafana / 等价导出）
+- `ops/alerts/<svc>.yaml`（Prometheus / 等价规则）
+- `ops/slo/<svc>.yaml`（SLI/SLO 定义，引用 STD-06）
+
+## Inputs / Outputs
+- **上游**：`docs/services/svc-NN-<name>.md`（拉取 SLI/SLO 与异常场景定义）
+- **对外**：CI 部署管线 / 告警系统的源真值
+
+## Red Lines
+- ❌ runbook 步骤中不得包含明文凭证 / Token（走 secret manager 引用）
+- ❌ alert 阈值变更必须配套 PR 描述「为何 + 历史依据」
+- ❌ 不允许只增 alert 不补 runbook（无 runbook = noisy）

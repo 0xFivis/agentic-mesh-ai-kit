@@ -1,0 +1,16 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/mcp/cursor/.cursor-mcp.json.tmpl · 落点: .cursor/mcp.json",
+  "_notes": "Cursor MCP schema 与 Claude 同 (mcpServers 顶层键)，文件名不同",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}" }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/settings/claude/settings.json.tmpl · 落点 .claude/settings.json (与 hooks/claude/settings.json.tmpl merge)",
+  "skills": {
+    "alwaysLoaded": ["data-redline"],
+    "_comment": "data-redline 强制始终在 context"
+  },
+  "mcp": { "configFile": ".mcp.json" },
+  "permissions": {
+    "defaultMode": "default",
+    "_planModeScenarios": "强制 Plan Mode: T0 / T2 / T4.1 / T4.3 / T7"
+  },
+  "memory": {
+    "_comment": "三层: CLAUDE.md(持久) · auto memory(会话) · .claude/memory/lessons/(沉淀)"
+  }
+}

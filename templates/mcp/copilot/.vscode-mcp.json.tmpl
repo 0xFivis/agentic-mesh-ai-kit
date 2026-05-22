@@ -1,0 +1,16 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/mcp/copilot/.vscode-mcp.json.tmpl · 落点: .vscode/mcp.json",
+  "_notes": "Copilot MCP 顶层键为 'servers' (不是 mcpServers)",
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}" }
+    }
+  }
+}

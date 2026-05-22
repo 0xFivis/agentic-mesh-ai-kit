@@ -1,0 +1,21 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · testing/
+
+## Scope
+横切测试资产：e2e / integration / load / contract / fixtures。单元测试随 `apps/*` 与 `packages/*` 源码同放。
+
+## Local Conventions
+- `testing/e2e/<feature>/` — 端到端用户场景（与 `specs/<feature-id>/quickstart.md` 对齐）
+- `testing/integration/<bctx>/` — 跨服务集成（按 bctx 分）
+- `testing/load/<svc>.js` — k6 / locust / 等价负载脚本
+- `testing/contract/<bctx>/` — Pact / Spring Cloud Contract / 等价契约测试
+- `testing/fixtures/` — 测试数据 generator（**绝不** 含真实 PII）
+
+## Inputs / Outputs
+- **上游**：`contracts/<bctx>/`（契约测试源）· `specs/<feature-id>/quickstart.md`
+- **对外**：CI 强制门（红 → 阻塞 merge）
+
+## Red Lines
+- ❌ fixtures 含真实用户 PII / 真实凭证（触 data-redline 8 红线 #3）
+- ❌ 测试跳过（`skip` / `xdescribe`）未配套 issue # 与失效日期
+- ❌ 契约测试与 `contracts/*.yaml` 不一致 → 阻塞 merge

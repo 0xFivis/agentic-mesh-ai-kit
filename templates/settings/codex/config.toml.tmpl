@@ -1,0 +1,29 @@
+# REFERENCE ONLY: sanitized sample, not for production
+# agentic-mesh-ai-kit/templates/settings/codex/config.toml.tmpl
+# 落点：~/.codex/config.toml (profile 级；项目级偏好可在 .codex/AGENTS.md 注明)
+
+model         = "gpt-5-codex"
+weak_model    = "gpt-5-codex-mini"
+approval_policy = "suggest"
+# read-only / suggest / auto-edit / full-auto
+
+[sandbox]
+mode    = "workspace"
+network = "blocked"
+file_writes = ["./", "/tmp/"]
+file_reads_blocklist = [
+  "**/secrets/**",
+  "**/.env*",
+  "**/<sensitive-data-dir>/**",
+]
+
+[skills]
+search_paths = [".codex/skills", ".claude/skills"]
+
+[agents]
+search_paths = [".codex/agents", ".claude/agents"]
+
+[cloud]
+default_task_timeout_minutes = 30
+allow_network_during_task    = false
+auto_pr                       = false   # 强制人工 review PR (T5)

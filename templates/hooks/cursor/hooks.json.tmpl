@@ -1,0 +1,27 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/hooks/cursor/hooks.json.tmpl · 落点: .cursor/hooks.json",
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "scripts/hooks/check-no-verify.sh", "description": "拦截 --no-verify" },
+      { "command": "scripts/hooks/block-dangerous-bash.sh", "description": "rm -rf / push --force" }
+    ],
+    "afterFileEdit": [
+      { "command": "scripts/hooks/lint-changed.sh", "description": "增量 lint" },
+      { "command": "scripts/hooks/check-no-secrets.sh", "description": "凭证扫描" }
+    ],
+    "beforeReadFile": [
+      { "command": "scripts/hooks/check-data-redline.sh", "description": "L4 黑名单读保护" }
+    ],
+    "beforeSubmitPrompt": [
+      { "command": "scripts/hooks/redact-secrets.sh", "description": "prompt mask 凭证" },
+      { "command": "scripts/hooks/check-needs-clarification.sh", "description": "待澄清守门" }
+    ],
+    "subagentStop": [
+      { "matcher": "reviewer", "command": "scripts/hooks/persist-review.sh" }
+    ],
+    "stop": [
+      { "command": "scripts/hooks/check-task-verification.sh" }
+    ]
+  }
+}

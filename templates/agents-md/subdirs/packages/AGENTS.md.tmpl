@@ -1,0 +1,22 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · packages/
+
+## Scope
+内部共享库（utility / domain-types / sdk-clients）。供 `apps/*` 与其他 `packages/*` 复用。
+
+## Local Conventions
+- 命名：`packages/<scope>-<name>`（例：`shared-logger` / `<bctx>-sdk`）
+- 必须有 `README.md` + 公开 API surface 声明
+- 版本：semver；breaking change → major bump + 在 `docs/adr/` 写 ADR
+
+## Inputs / Outputs
+- **上游**：仅 `packages/*`（不依赖 `apps/*`）
+- **对外**：通过 package 公共 API（按语言生态规范）
+
+## Red Lines
+- ❌ packages 不得包含具体 bctx 业务规则（业务规则只在 `apps/<bctx>-*/`）
+- ❌ packages 不得 import `apps/*`
+- ❌ 不允许在 packages 内执行 I/O 副作用（数据库 / 网络默认禁，调用方注入）
+
+## 子域 AGENTS.md
+按需用 `scaffold-agents-md` skill 在 `packages/<name>/AGENTS.md` 生成。

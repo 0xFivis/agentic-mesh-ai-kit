@@ -1,0 +1,20 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.override.md · Codex-only
+
+> 本文件仅被 OpenAI Codex CLI 识别；Claude / Cursor / Copilot 会忽略。
+> 用途：当 Codex 在某子目录下需遵守与其他 agent **不同** 的行为时（如沙箱级别 / 命令白名单），在此声明。
+
+## Codex-only 行为
+
+- **sandbox.mode**：本目录强制 `workspace`（即使 `~/.codex/config.toml` 是 `off`）
+- **审批策略**：本目录强制 `suggest`（不可 `full-auto`）
+- **可执行命令白名单**：
+  - 允许：`{{allowed-cmds}}`（例：`pytest`, `ruff`, `npm test`）
+  - 禁止：所有未列出的命令
+
+## 引用关系
+
+- 上游：本仓根 `AGENTS.md` 第 5 节红线
+- 下游：本子目录的具体命令脚本
+
+> 若本子目录无 Codex-only 差异 → **请直接删除本文件**（不要留空）。

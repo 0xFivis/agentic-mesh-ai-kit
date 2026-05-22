@@ -1,0 +1,53 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/hooks/claude/settings.json.tmpl · 落点: .claude/settings.json (merge with settings/claude/settings.json.tmpl)",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "scripts/hooks/check-no-verify.sh", "description": "拦截 --no-verify" },
+          { "type": "command", "command": "scripts/hooks/block-dangerous-bash.sh", "description": "rm -rf / push --force / prod" }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "scripts/hooks/check-no-secrets.sh", "description": "凭证泄漏扫描" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "scripts/hooks/lint-changed.sh", "description": "增量 lint" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "scripts/hooks/check-closes-issue.sh", "description": "commit msg 含 Closes #N" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [
+        { "type": "command", "command": "scripts/hooks/check-needs-clarification.sh", "description": "待澄清守门" }
+      ]}
+    ],
+    "Stop": [
+      { "hooks": [
+        { "type": "command", "command": "scripts/hooks/check-task-verification.sh", "description": "任务收尾自验" }
+      ]}
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "reviewer",
+        "hooks": [
+          { "type": "command", "command": "scripts/hooks/persist-review.sh", "description": "REVIEW.md 落盘" }
+        ]
+      }
+    ]
+  }
+}

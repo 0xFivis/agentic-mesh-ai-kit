@@ -1,0 +1,13 @@
+# REFERENCE ONLY: sanitized sample, not for production
+# agentic-mesh-ai-kit/templates/mcp/codex/config.toml.tmpl
+# 落点：merge 到 ~/.codex/config.toml
+# Codex MCP 用 TOML 表，键为 [mcp_servers.<name>]
+
+[mcp_servers.filesystem]
+command = "npx"
+args    = ["-y", "@modelcontextprotocol/server-filesystem", "."]
+
+[mcp_servers.github]
+command = "npx"
+args    = ["-y", "@modelcontextprotocol/server-github"]
+env     = { GITHUB_PERSONAL_ACCESS_TOKEN = "${GITHUB_TOKEN}" }

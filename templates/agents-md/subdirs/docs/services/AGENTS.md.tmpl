@@ -1,0 +1,22 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · docs/services/
+
+## Scope
+服务详设。一个 service = 一份 `svc-NN-<name>.md`。回答**这个服务怎么工作**（领域模型 / API surface / 数据 / 状态机 / 失败模式 / SLO）。
+
+## Local Conventions
+- 命名：`svc-NN-<bctx>-<role>.md`（与 `apps/<bctx>-<role>/` 一对一）
+- 章节固定：
+  1. 定位与边界
+  2. 领域模型与状态机
+  3. API surface（→ link `contracts/<bctx>/openapi/<svc>.yaml`）
+  4. 数据模型（→ link `data-model.md`）
+  5. 集成（上游 / 下游 / 事件）
+  6. 失败模式与回滚
+  7. SLO / SLI（→ link `ops/slo/<svc>.yaml`）
+  8. ADR 索引（影响本 svc 的 ADR 列表）
+
+## Red Lines
+- ❌ svc 详设缺对应 `apps/<svc>/` 实现或 `contracts/<bctx>/openapi/<svc>` 契约 → CI 阻塞
+- ❌ 详设内出现 HOW 但不引 ADR（任何决策点必须可追 ADR-ID）
+- ❌ 跨 bctx 直连描述（必须走 contracts + ACL）

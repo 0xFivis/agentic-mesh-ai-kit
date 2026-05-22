@@ -1,0 +1,27 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · docs/architecture/
+
+## Scope
+8 章架构骨架（边界 / 不变量 / 拆分），骨架来自 [agentic-mesh-arch-kit](https://github.com/{{org}}/agentic-mesh-arch-kit)。
+
+## 8 章固定编号
+
+```
+01_业务上下文与限界上下文.md
+02_系统全景架构.md
+03_微服务拆分原则与服务清单.md
+04_数据架构与账本设计.md
+05_多主体与合规架构.md
+06_集成与外部系统边界.md
+07_跨上下文协作模式.md
+08_技术选型与ADR索引.md
+```
+
+并配套：
+- `_context-map.{yaml,md}` — bctx ↔ svc ↔ team 三向映射
+- `_registry.yaml` — 服务清单（与 `apps/*` / `docs/services/svc-NN-*` 三向对账）
+
+## Red Lines
+- ❌ 章节回答的问题侵入 ADR / standards 范畴：架构回答「边界在哪 / 不变量是什么 / 怎么拆」，**不** 回答「为什么选 X」（→ ADR）或「必须怎么写」（→ standards）
+- ❌ 新增章节（破 8 章编号） — 必须先 ADR
+- ❌ `_context-map.yaml` 与 `_registry.yaml` 与 `apps/` 不一致 → CI 阻塞

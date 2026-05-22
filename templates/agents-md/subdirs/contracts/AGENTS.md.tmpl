@@ -1,0 +1,41 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · contracts/
+
+## Scope
+跨上下文契约源真值：OpenAPI / AsyncAPI / Proto。**所有** 跨 bctx 通信必须先有契约，后写代码。
+
+## Local Conventions（硬规则 · D28）
+
+```
+contracts/
+├── <bctx-a>/
+│   ├── openapi/
+│   │   ├── <svc-a>.yaml      ← 一个 svc 一份 OpenAPI
+│   │   └── <svc-b>.yaml
+│   ├── asyncapi/
+│   │   └── <topic-a>.yaml    ← 一个 topic 一份 AsyncAPI
+│   ├── proto/
+│   │   └── <service>.proto
+│   └── _shared/              ← 仅本 bctx 内共享的类型
+├── <bctx-b>/
+│   └── ...
+└── _common/                  ← 跨 bctx 共享类型 · 白名单
+    ├── envelope.yaml
+    ├── error.yaml
+    ├── pagination.yaml
+    ├── timestamp.yaml
+    └── money.yaml
+```
+
+## Red Lines（D28 三规 · 不可破）
+
+1. **bctx 一级目录**：`contracts/` 下一级 **必须** 是 bounded-context 名（不可按 svc 直挂）
+2. **跨 bctx 必经 ACL**：跨 bctx 调用 → 在调用方 `apps/<bctx>-*/` 内必须有 anti-corruption layer，禁直接 import 对方 schema
+3. **`_common/` 白名单封闭**：仅允许 `envelope / error / pagination / timestamp / money` 五类；新增白名单项 → 必须 ADR-accepted
+
+## CODEOWNERS
+本目录由各 bctx owner 共管；`_common/` 由 Arch Lead 单点把关。任何 PR 触及 `_common/` 必须 Arch Lead Approve。
+
+## Inputs / Outputs
+- **上游**：`docs/services/svc-NN-<name>.md`（详设决定 endpoint 形态）
+- **对外**：CI 契约 lint + 契约测试源

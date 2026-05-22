@@ -1,0 +1,21 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+{
+  "_comment": "agentic-mesh-ai-kit/templates/mcp/claude/.mcp.json.tmpl · 落点: 仓库根 .mcp.json",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}" }
+    },
+    "_postgres-example": {
+      "_disabled": "示例 · 启用时去掉前缀下划线",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": { "POSTGRES_URL": "${env:POSTGRES_URL}" }
+    }
+  }
+}

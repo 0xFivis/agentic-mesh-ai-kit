@@ -1,0 +1,32 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# Copilot Instructions · {{project-name}}
+
+> 本文件由 GitHub Copilot 自动读取（需启用 `github.copilot.chat.codeGeneration.useInstructionFiles: true`）。
+> 跨 agent 通用指令请写在 `AGENTS.md`；本文件仅放 **Copilot 专属补充**。
+
+## 1. 召回提示
+
+Copilot Chat 提问时，自动注入以下 context：
+
+- 仓库根 `AGENTS.md`（仓库定位 / 红线 / SOP）
+- 本 feature 关联的 `specs/<feature-id>/` 全套
+- 相关 `contracts/<bctx>/` schema
+
+## 2. Skills 召回（agentskills.io · 12 skill）
+
+按阶段唤起：
+
+- T0 → `/tech-intake <feature-id>`
+- T1 → `/bc-impact-map <feature-id>`
+- T2 → `/contract-first <feature-id>`
+- T3 → `/task-decomp-fanout <feature-id>`
+- T4.1 / T4.3 → `/gate-checklist <mode> <target>`
+- T4.2 → `/qa-cases <feature-id>`
+- T6 → `/release-canary <feature-id>`
+- T7 → `/retro-audit <feature-id>`
+
+## 3. Copilot 专属偏好
+
+- **代码生成默认带类型注解**（即使语言本身是 dynamic）
+- **commit message 必带 `Closes #N`**（由 hooks/_shared/check-closes-issue.sh 校验）
+- **PR description 必引用 spec.md + 关联 contract 锚点**

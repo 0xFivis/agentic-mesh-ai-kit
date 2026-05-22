@@ -1,0 +1,15 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+---
+applyTo: "contracts/**"
+---
+
+# Contracts-First Instructions (Copilot)
+
+任何 `contracts/<bctx>/**` 改动必须：
+
+1. PR 描述引用 `specs/<feature-id>/spec.md` + `plan.md`
+2. 涉及横切决策时引用 `docs/adr/ADR-NNN`
+3. 走 `/contract-first <feature-id> --step=4` 生成草稿
+4. `contracts/_common/` 改动 → Arch Lead Approve（CODEOWNERS 已配）
+
+违反 → CI block。

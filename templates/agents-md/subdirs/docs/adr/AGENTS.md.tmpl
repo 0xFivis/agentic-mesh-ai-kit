@@ -1,0 +1,21 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · docs/adr/
+
+## Scope
+架构决策记录（Architecture Decision Records）。回答**为什么选 X**。每个 ADR 独占一份。
+
+## Local Conventions
+- 命名：`ADR-NNN-<slug>.md`（NNN 三位顺序号，全仓单序列）
+- 5 段硬模板：Context / Candidates(≥2) / Decision Matrix / Decision / Excluded Reasons
+- 状态机：`draft → review → accepted / rejected / superseded`
+- 由 `adr-writing` skill 生成草稿，**Arch Lead Approve** 才能转 `accepted`
+
+## Red Lines（D28 + adr-writing）
+- ❌ 单候选 ADR → 拒绝
+- ❌ Excluded Reasons 缺失 → 拒绝
+- ❌ `accepted` ADR 内容修改 → 必须 supersede（新 ADR 标 `supersedes: ADR-NNN`），不可原地改
+- ❌ ADR 内容下放到 `docs/standards/` 之前未先 accept
+
+## Inputs / Outputs
+- **上游**：架构骨架 / 跨上下文冲突 / spec.md plan.md 中 `adrs: [TBD]` 标记
+- **对外**：`docs/standards/` STD 必须配套上游 ADR；`specs/*/plan.md` 引用 ADR-ID

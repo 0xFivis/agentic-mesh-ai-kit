@@ -1,0 +1,23 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · apps/
+
+## Scope
+本目录托管所有**部署单元**（service / web / cli / worker）。每个 `apps/<name>/` 是一个独立可部署 artifact。
+
+## Local Conventions
+- 一个 `apps/<name>` 仅属于一个 bounded-context（在该子目录 `AGENTS.md` 内声明）
+- 命名：`apps/<bctx>-<svc-role>`（例：`<bctx>-api` / `<bctx>-worker`）
+- 入口可执行：`apps/<name>/cmd/` 或 `apps/<name>/src/main.*`
+- 每个 svc 必有对应 `docs/services/svc-NN-<name>.md` 详设
+
+## Inputs / Outputs
+- **上游**：`packages/*`（共享库）· `contracts/<bctx>/`（自有契约）
+- **对外**：`contracts/<bctx>/openapi/<svc>` 中暴露的 endpoint（不可绕过）
+
+## Red Lines
+- ❌ apps 内不得 import 其他 `apps/*` 的内部代码（必须走 contracts）
+- ❌ apps 内不得直连其他 bctx 的私有数据表
+- ❌ apps 子目录新建前必须先有 `contracts/<bctx>/openapi/<svc>` 占位
+
+## 子域 AGENTS.md
+按需用 `scaffold-agents-md` skill 在 `apps/<name>/AGENTS.md` 生成（never overwrite）。

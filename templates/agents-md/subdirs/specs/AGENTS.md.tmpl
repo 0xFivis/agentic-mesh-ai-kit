@@ -1,0 +1,20 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · specs/
+
+## Scope
+feature 级五件套留痕：`spec.md` / `plan.md` / `data-model.md` / `contracts/*.yaml` / `quickstart.md` + 派生的 `tasks.md` / `retro.md` / `_intake-qa.md` / `_issues-map.md`。
+
+## Local Conventions
+- 一个 feature = 一个 `specs/<NNN-feature-slug>/` 子目录
+- 五件套由 `contract-first` skill 按顺序生成（前一步未 Approve 拒绝继续）
+- 每个 `<feature-id>` 子目录在 `tasks.md` 派生后绑定 N 个 GitHub Issue（`_issues-map.md` 留映射）
+
+## Inputs / Outputs
+- **上游**：`docs/prd/` · `docs/architecture/` · `docs/adr/` · `contracts/<bctx>/`
+- **对外**：T3 `task-decomp-fanout` → GitHub Issue · T7 `retro-audit` → `retro.md`
+
+## Red Lines
+- ❌ `spec.md` 包含 HOW（库名 / 框架名 / 数据结构选型） → `[REJECT-HOW]` 回流
+- ❌ feature 跨 bctx → 必须拆为多 feature
+- ❌ 五件套缺一不可入 T4.2（DoR）
+- ❌ 直接修改已 Approved 的 `spec.md` → 必须走 ADR-superseded 或新 feature

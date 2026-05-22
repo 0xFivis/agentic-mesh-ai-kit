@@ -1,0 +1,21 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+# AGENTS.md · docs/
+
+## Scope
+仓库内所有文档的根目录。子目录边界：
+- `docs/prd/` — 产品需求（来自 PM；agent 只读 + 引用）
+- `docs/architecture/` — 8 章架构骨架（见 arch-kit）
+- `docs/adr/` — 架构决策记录（ADR-NNN）
+- `docs/services/` — 服务详设（svc-NN-<name>）
+- `docs/standards/` — 仓内 STD（如有；平台级 STD 在 tech-standards 仓）
+- `docs/playbook.md` · `docs/sop/` · `docs/reviews/` — AI 协作 SOP 与评审留痕
+
+## Local Conventions
+- 所有文档中文撰写；技术术语保留英文
+- 任何外部链接 / 跨文档引用必须可点击（绝对 URL 或仓内相对路径）
+- 文档不得包含真实业务数据（用 `<placeholder>`）
+
+## Red Lines
+- ❌ PRD 反向引用 architecture / ADR（单向：PRD → architecture）
+- ❌ architecture / ADR / standards 三类内容互相侵占
+- ❌ 文档变更未配套 PR 描述「为何 + 影响范围」
