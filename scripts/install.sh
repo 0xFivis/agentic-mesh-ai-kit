@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # agentic-mesh-ai-kit / scripts/install.sh
 # 一键铺设 4 厂商 AI 协作矩阵到目标仓库
-# 用法：  bash scripts/install.sh --vendor <claude|cursor|copilot|codex|all> [--codex-override] [--with-spec-kit] [--dry-run]
+# 用法：  bash scripts/install.sh --vendor <claude|cursor|copilot|codex|all> [--codex-override] [--no-spec-kit] [--dry-run]
 # 设计：幂等 + 非破坏（已存在文件跳过并提示用 upgrade.sh）
+# Spec-Kit：默认开启（依赖 uvx）；如需关闭加 --no-spec-kit
 
 set -euo pipefail
 
@@ -11,7 +12,7 @@ KIT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET="${TARGET:-$PWD}"
 VENDOR="all"
 CODEX_OVERRIDE="false"
-WITH_SPEC_KIT="false"
+WITH_SPEC_KIT="true"   # 默认开启；用 --no-spec-kit 关闭
 DRY_RUN="false"
 
 log()  { printf '\033[1;34m[install]\033[0m %s\n' "$*"; }
@@ -22,7 +23,8 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --vendor)         VENDOR="$2"; shift 2 ;;
     --codex-override) CODEX_OVERRIDE="true"; shift ;;
-    --with-spec-kit)  WITH_SPEC_KIT="true"; shift ;;
+    --with-spec-kit)  WITH_SPEC_KIT="true"; shift ;;   # 兼容旧参数（已默认开启）
+    --no-spec-kit)    WITH_SPEC_KIT="false"; shift ;;
     --dry-run)        DRY_RUN="true"; shift ;;
     --target)         TARGET="$2"; shift 2 ;;
     -h|--help)
@@ -110,16 +112,27 @@ step_subdir_agents() {
 
 # --- step 2 · Spec-Kit init -------------------------------------
 step_spec_kit() {
-  [[ "$WITH_SPEC_KIT" == "true" ]] || { log "[step 2] 跳过 Spec-Kit (--with-spec-kit 未指定)"; return; }
+  if [[ "$WITH_SPEC_KIT" != "true" ]]; then
+    log "[step 2] 跳过 Spec-Kit (--no-spec-kit 指定)"
+    return
+  fi
   log "[step 2] Spec-Kit init"
   local integ="$VENDOR"
   [[ "$VENDOR" == "all" ]] && integ="claude"  # all 时主集成走 claude
   if [[ "$DRY_RUN" == "true" ]]; then
-    log "DRY: uvx --from git+https://github.com/github/spec-kit.git specify init . --integration $integ --here"
-  else
-    command -v uvx >/dev/null || { err "需要 uvx (uv 工具集): https://docs.astral.sh/uv/"; return 1; }
-    uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here || warn "spec-kit init 非零退出 (可能已初始化)"
+    log "DRY: uvx --from git+https://github.com/github/spec-kit.git specify init . --integration $integ --here --force --ignore-agent-tools"
+    return
   fi
+  if ! command -v uvx >/dev/null 2>&1; then
+    err "缺少 uvx：Spec-Kit 默认开启，需要先安装 uv (Astral) 工具集。"
+    err "  安装方式：  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    err "  或 pip：    pip install uv"
+    err "  文档：     https://docs.astral.sh/uv/"
+    err "  若本项目不需要 Spec-Kit 五件套，请改用：  install.sh --vendor $VENDOR --no-spec-kit"
+    exit 4
+  fi
+  uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here --force --ignore-agent-tools \
+    || warn "spec-kit init 非零退出 (可能已初始化，可忽略)"
 }
 
 # --- step 3 · Skills (agentskills.io) ---------------------------
