@@ -46,15 +46,81 @@ This repo never depends on `agentic-mesh-arch-kit`, never invokes its scripts, a
 - a platform derived from `arch-kit`, **or**
 - any other empty / existing repository.
 
-## Versioning
+## Install
 
-`install.sh` writes the kit version into a single file at the target platform root:
+### Prerequisites
+
+- `git` ≥ 2.30
+- `bash` ≥ 3.2 (macOS stock works; Linux/WSL fine)
+- `npx` (for `skills add` distribution)
+- `uvx` (only if you pass `--with-spec-kit`; install via [uv](https://docs.astral.sh/uv/))
+
+### 1 · Get the kit
+
+```bash
+git clone https://github.com/fivis/agentic-mesh-ai-kit.git ~/.agentic-mesh-ai-kit
+```
+
+> Pin a version (recommended for reproducibility):
+> ```bash
+> git -C ~/.agentic-mesh-ai-kit checkout v0.1.0
+> ```
+
+### 2 · Install into your target platform
+
+```bash
+cd /path/to/your/platform   # must be a git repo
+bash ~/.agentic-mesh-ai-kit/scripts/install.sh --vendor all
+```
+
+Flags:
+
+| Flag | Effect |
+|---|---|
+| `--vendor <claude\|cursor\|copilot\|codex\|all>` | which AI vendor(s) to wire up (default `all`) |
+| `--codex-override` | also lay down `.codex/AGENTS.override.md` for Codex-specific divergence |
+| `--with-spec-kit` | also run `uvx specify init . --integration <vendor> --here` (Spec-Kit) |
+| `--dry-run` | show what would happen; write nothing |
+| `--target <dir>` | install into a different directory than `$PWD` |
+
+### 3 · What lands where
+
+After `install.sh --vendor all` your platform gains:
 
 ```
-.ai-kit-version   # e.g. v0.1.0
+AGENTS.md                            # root L1 (single source)
+CLAUDE.md → AGENTS.md                # symlink for Claude Code
+apps/AGENTS.md   packages/AGENTS.md   ops/AGENTS.md   ...   # 10 subdir L1s (non-destructive)
+.claude/{skills,agents,settings.json,settings.local.json}
+.cursor/{skills,agents,rules,hooks.json,mcp.json,settings.json}
+.codex/{skills,agents,hooks.toml}    # config.toml stays at ~/.codex/
+.github/{copilot-instructions.md,instructions/,chatmodes/,ci-prompts/review.md}
+.vscode/mcp.json                     # Copilot MCP
+.mcp.json                            # Claude MCP
+.ai-kit/hooks/_shared/*.sh           # shared hook scripts (chmod +x)
+.ai-kit-version                      # version pin (e.g. v0.1.0)
 ```
 
-`scripts/upgrade.sh` performs a three-way merge against a newer tag and updates this file.
+Existing files are **never overwritten** — you'll see `skip (exists)` warnings. Use `upgrade.sh` for true upgrades.
+
+### 4 · (Optional) Generate `AGENTS.md` for business sub-domains
+
+`install.sh` lays down the 10 generic subdir `AGENTS.md`s. For per-service ones (`apps/<svc>/AGENTS.md`), invoke the skill manually inside the vendor of your choice:
+
+```
+claude skill scaffold-agents-md      # or the equivalent in cursor / copilot / codex
+```
+
+### 5 · Upgrade later
+
+```bash
+git -C ~/.agentic-mesh-ai-kit fetch --tags
+git -C ~/.agentic-mesh-ai-kit checkout v0.2.0
+bash ~/.agentic-mesh-ai-kit/scripts/upgrade.sh
+# review git diff; resolve any *.local backups or merge conflict markers
+```
+
+The upgrade script reads `.ai-kit-version`, fetches that tag as the merge base, and performs a three-way merge against your modified files. New skills/agents in the new version are added; existing ones are diff-merged.
 
 ## Status
 
