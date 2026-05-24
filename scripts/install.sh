@@ -292,4 +292,6 @@ step_version
 log "完成。下一步："
 log "  1) 审阅各 AGENTS.md / .claude/settings.json 是否符合团队约定"
 log "  2) 把 ci-prompts/review.md 接入 GitHub Actions（见 templates/ci-prompts/README.md）"
-log "  3) 若已有旧版本，使用 scripts/upgrade.sh 做三方合并升级"
+log "  3) 若已有旧版本需做三方合并升级，请先本地 clone kit："
+log "       git clone https://github.com/0xFivis/agentic-mesh-ai-kit.git ~/.ai-kit"
+log "       bash ~/.ai-kit/scripts/upgrade.sh --target \"\$PWD\""

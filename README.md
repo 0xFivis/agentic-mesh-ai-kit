@@ -1,5 +1,11 @@
 # agentic-mesh-ai-kit
 
+> **⚠ 状态：早期草案 / Early Draft · Not production-ready**
+>
+> 本仓仍在完善与测试中，**不是正式发布的项目**：内容存在缺失、模板与 CI 覆盖不全、四厂商对等性仍在验证、技术债较多。仅适合**评估、试用、提反馈**，**不建议直接用于生产**。脚本参数 / 模板路径 / Skill 清单可能随时变动且不保证向后兼容。
+>
+> *This repository is an early draft and not officially released. Expect missing content, incomplete CI/template coverage, unverified four-vendor parity, and notable tech debt. Use for evaluation and feedback only; not recommended for production. Script flags, template paths, and skill list may change without notice.*
+
 > **AI-collaboration distribution kit** — a single installable repo bundling **four asset classes** for AI-assisted development across Claude Code, Cursor, GitHub Copilot, and Codex CLI. Pairs with (but does **not** depend on) [`agentic-mesh-arch-kit`](https://github.com/fivis/agentic-mesh-arch-kit).
 
 ## What lives here (the 4 asset classes)
@@ -47,6 +53,20 @@ This repo never depends on `agentic-mesh-arch-kit`, never invokes its scripts, a
 - any other empty / existing repository.
 
 ## Install
+
+### Quick start — remote one-liner (no clone)
+
+```bash
+cd /path/to/your/platform        # 必须是 git repo
+bash <(curl -sSL https://raw.githubusercontent.com/0xFivis/agentic-mesh-ai-kit/main/bootstrap.sh) --vendor all
+```
+
+The bootstrap script shallow-clones the kit to a tempdir, runs `scripts/install.sh` against your current directory, and cleans up. All `install.sh` flags pass through (`--vendor`, `--no-spec-kit`, `--skip-agent-check`, `--dry-run`, …).
+
+Pin a version: `KIT_REF=v0.2.0 bash <(curl -sSL …/bootstrap.sh) --vendor all`
+Use a fork: `KIT_REPO=https://github.com/you/agentic-mesh-ai-kit.git bash <(curl -sSL …/bootstrap.sh) --vendor all`
+
+For `upgrade.sh` you still need the kit on disk — see "Get the kit" below.
 
 ### Prerequisites
 
