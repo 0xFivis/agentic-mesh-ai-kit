@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>agentic-mesh-ai-kit · AI 协作配置脚手架</title>
+<meta name="description" content="一条 install 命令为 4 个 AI 厂商（Claude / Codex / Cursor / Copilot）铺设统一的 Skills + SOP + Hooks 配置。">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/themes/vue.css">
+<style>
+:root { --theme-color: #8b5cf6; }
+.sidebar-nav > ul > li > p { font-weight: 700; color: #1e293b; }
+.markdown-section { max-width: 920px; }
+.app-name-link { font-weight: 700; }
+</style>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+mermaid.initialize({ startOnLoad: false, theme: 'default' });
+window.mermaid = mermaid;
+</script>
+</head>
+<body>
+<div id="app">Loading…</div>
+<script>
+window.$docsify = {
+  name: '🤖 ai-kit',
+  repo: 'https://github.com/0xFivis/agentic-mesh-ai-kit',
+  loadSidebar: true,
+  subMaxLevel: 3,
+  homepage: 'README.md',
+  auto2top: true,
+  relativePath: true,
+  notFoundPage: true,
+  search: { placeholder: '🔍 搜索…', noData: '没有匹配结果', depth: 6 },
+  alias: {
+    '/.*/_sidebar.md': '/_sidebar.md'
+  },
+  markdown: {
+    renderer: {
+      code: function(code, lang) {
+        if (lang === 'mermaid') {
+          return '<div class="mermaid">' + code + '</div>';
+        }
+        return this.origin.code.apply(this, arguments);
+      }
+    }
+  },
+  plugins: [
+    function (hook) {
+      hook.doneEach(function () {
+        if (window.mermaid) {
+          var nodes = document.querySelectorAll('.mermaid:not([data-processed])');
+          if (nodes.length) {
+            window.mermaid.run({ nodes: nodes }).catch(function(e){ console.warn('mermaid:', e); });
+          }
+        }
+      });
+    }
+  ]
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/docsify@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/zoom-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+</body>
+</html>
