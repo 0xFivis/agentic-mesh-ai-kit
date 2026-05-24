@@ -164,7 +164,7 @@ step_spec_kit() {
 # --- step 3 · Skills (agentskills.io) ---------------------------
 step_skills() {
   log "[step 3] Skills (12 个)"
-  local skills=(tech-intake adr-writing std-writing contract-first gate-checklist task-decomp-fanout bc-impact-map qa-cases release-canary retro-audit data-redline scaffold-agents-md)
+  local skills=(tech-intake adr-writing std-writing contract-first gate-checklist task-decomp-fanout bc-impact-map qa-cases release-canary retro-audit data-redline scaffold-agents-md task-plan-drafting self-review-agent new-service-bootstrap)
   # 本仓内 skills 已就绪；策略：复制到 4 家原生 L2 surface
   #   .claude/skills/ · .cursor/skills/ · .codex/skills/ · .github/skills/ (Copilot Agent Skills, VS Code /create-skill)
   for sk in "${skills[@]}"; do
