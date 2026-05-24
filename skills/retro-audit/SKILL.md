@@ -37,7 +37,7 @@ paths:
 
 ### D. Kit 卫生类（3 条 · D26/D27/D28）
 10. **抄袭检测 (D26)**：本 feature 引入的 skill/STD/template 是否包含从其他项目原样复制且未删除业务专有名词的痕迹？（grep 项目特定术语清单 = 0 命中）
-11. **SANITIZED 头校验 (D27)**：所有从外部样例改写的 `_example/` 与 `templates/*.tmpl` 是否首行带 `<!-- REFERENCE ONLY: sanitized sample, not for production -->`？
+11. **SANITIZED 头校验 (D27)**：所有 `_template/`（结构骨架）、`_example/`（v0.2+ 实例样本）目录下的文件，以及所有 `*.tmpl` 模板，是否首行带 `<!-- REFERENCE ONLY: sanitized template, fill before use -->`（或等价 `# REFERENCE ONLY: sanitized template, fill before use` 适配语言注释语法）？
 12. **Bounded-Context 三规 (D28)**：本 feature 涉及的 contracts 是否满足 (a) bctx 作为 `contracts/<bctx>/` 一级目录 · (b) 跨 bctx 调用必经 ACL · (c) 跨 bctx 共享类型仅落 `contracts/_common/` 且在白名单内（envelope / error / pagination / timestamp / money）？
 
 ## 输出 1：`specs/<feature-id>/retro.md`

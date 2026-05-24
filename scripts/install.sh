@@ -156,7 +156,8 @@ step_spec_kit() {
     err "  若本项目不需要 Spec-Kit 五件套，请改用：  install.sh --vendor $VENDOR --no-spec-kit"
     exit 4
   fi
-  uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here --force $ignore_flag \
+  # --script sh：跳过 sh/ps 交互询问（macOS/Linux 默认 sh）
+  uvx --from git+https://github.com/github/spec-kit.git specify init . --integration "$integ" --here --force --script sh $ignore_flag \
     || warn "spec-kit init 非零退出 (可能已初始化、或 vendor CLI 缺失；其余步骤继续)"
 }
 
@@ -164,14 +165,15 @@ step_spec_kit() {
 step_skills() {
   log "[step 3] Skills (12 个)"
   local skills=(tech-intake adr-writing std-writing contract-first gate-checklist task-decomp-fanout bc-impact-map qa-cases release-canary retro-audit data-redline scaffold-agents-md)
-  # 本仓内 skills 已就绪；策略：复制到目标仓 .claude/skills、.cursor/skills、.codex/skills；Copilot 走 chatmodes (后续 step 处理)
+  # 本仓内 skills 已就绪；策略：复制到 4 家原生 L2 surface
+  #   .claude/skills/ · .cursor/skills/ · .codex/skills/ · .github/skills/ (Copilot Agent Skills, VS Code /create-skill)
   for sk in "${skills[@]}"; do
     local src="$KIT_ROOT/skills/$sk"
     [[ -d "$src" ]] || { warn "skill missing: $sk"; continue; }
     wants claude  && copy_skill_dir "$src" ".claude/skills/$sk" || true
     wants cursor  && copy_skill_dir "$src" ".cursor/skills/$sk" || true
     wants codex   && copy_skill_dir "$src" ".codex/skills/$sk"  || true
-    # Copilot 暂无 skills 等价物；通过 instructions 文件引用
+    wants copilot && copy_skill_dir "$src" ".github/skills/$sk" || true
   done
 }
 copy_skill_dir() {
@@ -244,11 +246,19 @@ step_settings() {
   log "[step 8] Settings"
   wants claude  && render_tmpl "$KIT_ROOT/templates/settings/claude/settings.json.tmpl" ".claude/settings.local.json" || true
   wants cursor  && render_tmpl "$KIT_ROOT/templates/settings/cursor/settings.json.tmpl" ".cursor/settings.json" || true
-  wants copilot && warn "Copilot 设置需 merge 到 .vscode/settings.json，模板见 templates/settings/copilot/README.md" || true
+  if wants copilot; then
+    # .vscode/settings.json 不存在 → 直写模板；存在 → copy_if_absent 跳过 + warn user merge
+    if [[ -f ".vscode/settings.json" ]]; then
+      warn "Copilot 设置：.vscode/settings.json 已存在，请手动 merge 片段 · 源：templates/settings/copilot/settings.json.tmpl"
+    else
+      render_tmpl "$KIT_ROOT/templates/settings/copilot/settings.json.tmpl" ".vscode/settings.json"
+    fi
+  fi
   if wants codex; then
-    # 项目级 .codex/config.toml 一文件承载：settings + sandbox + skills/agents + MCP servers。
-    render_tmpl "$KIT_ROOT/templates/codex/config.toml.tmpl" ".codex/config.toml"
-    warn "Codex 机器级 key (openai_base_url / chatgpt_base_url / model_provider / model_providers / notify / profile / profiles / experimental_realtime_ws_base_url / otel) 项目级不生效，需手放 ~/.codex/config.toml。"
+    # 项目级 .codex/config.toml 一文件承载：settings + sandbox + skills/agents + MCP servers（均生效）。
+    render_tmpl "$KIT_ROOT/templates/settings/codex/config.toml.tmpl" ".codex/config.toml"
+    log "  → 项目级 .codex/config.toml 已落地生效 (settings/sandbox/skills/agents/mcp_servers)"
+    warn "另有 9 个 machine-level key (openai_base_url / chatgpt_base_url / model_provider(s) / notify / profile(s) / experimental_realtime_ws_base_url / otel) Codex CLI 只从 ~/.codex/config.toml 读，项目级不生效 · 需要时手放用户级。"
   fi
 }
 

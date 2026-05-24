@@ -1,0 +1,144 @@
+<!--
+来源：agentic-mesh-ai-kit/templates/specs/impact-analysis.md.tmpl
+权威：agentic-mesh-ai-kit/playbook.md §3.2 Context Bundle ④
+触发：T1 影响分析 · `bc-impact-map` skill 输出后扩展生成；DoR 硬约束（缺则不进 T4.2）
+落点：specs/<NNN-feature-slug>/impact-analysis.md
+ROLE：本模板渲染产物为 feature 共享文档（feature-shared），不替代 docs/services/<svc>/* 与 contracts/*
+-->
+
+# Impact Analysis · <NNN-feature-slug>
+
+> 本文档列出本 feature 触达的全部架构面，作为 T2 详设与 T4.2 编码的影响清单。
+> **填写规则**：每节若无影响必须显式勾 `[x] 无影响 +理由`，禁留空。
+
+- Feature ID：`<NNN-feature-slug>`
+- 关联 PR / Issue：#<N>
+- 起草者：<AI 工具 / 人>
+- 起草日期：<YYYY-MM-DD>
+- 配套 impact-map：[`./impact-map.md`](./impact-map.md)（bc-impact-map skill 输出）
+
+---
+
+## 1. 变更摘要（≤3 句）
+
+- 业务动作：<动词 + 实体 + 期望结果>
+- 触达 BC：<bctx-1>, <bctx-2>
+- 风险概览：low / medium / high（理由）
+
+---
+
+## 2. 受影响 Contracts
+
+> 锚 `contracts/<bctx>/openapi|asyncapi/<svc>/`；列每个 schema 文件 + delta 类型。
+
+- [ ] 无影响 ·理由：<...>
+
+| 文件 | delta | 版本号变化 | 兼容性 | 说明 |
+|---|---|---|---|---|
+| `contracts/<bctx>/openapi/<svc>/<spec>.yaml` | new / modify / deprecate | vX.Y → vX.Y+1 | breaking / compatible | <字段或端点变更> |
+
+---
+
+## 3. 受影响标准（STD-NN）
+
+> 锚 `tech-standards/STD-NN-*.md`；标 STD 升级类型。
+
+- [ ] 无影响 ·理由：<...>
+
+| STD | 当前条款锚点 | delta 类型 | 升级载体 |
+|---|---|---|---|
+| STD-02-api | §X.Y | clarify / extend / new-section | RFC / ADR-NNN |
+
+---
+
+## 4. 受影响决策（ADR-NNNN）
+
+> 列引用的既有 ADR + 本次新增的 ADR 草案号。
+
+- [ ] 无影响 ·理由：<...>
+
+| ADR | 关系 | 状态 |
+|---|---|---|
+| ADR-NNNN | 引用（不变）/ 取代 / 新增草案 | accepted / draft / superseded |
+
+---
+
+## 5. 受影响服务
+
+> 锚 `docs/services/<svc>/` + `apps/<svc>/`；列每个服务的改动面（4×8 矩阵中的哪几列被触及）。
+
+- [ ] 无影响 ·理由：<...>
+
+| 服务（svc-NN-bctx-role）| type | 触及文件矩阵列 | 是否需新增 saga/state-machine | owner |
+|---|---|---|---|---|
+| svc-NN-<bctx>-<role> | api/worker/saga/gateway | runbook / api / events / ... | yes / no | <team> |
+
+---
+
+## 6. 数据迁移
+
+> 锚 `apps/<svc>/migrations/*.sql`；列每个迁移文件 + 表/字段变更。`build-data-index.py` 会自动汇总到 `docs/services/<svc>/_data-index.md`。
+
+- [ ] 无影响 ·理由：<...>
+
+| 迁移文件 | 变更类型 | 表 / 字段 | 是否回填 | 是否触红线（PII / 资金）|
+|---|---|---|---|---|
+| `apps/<svc>/migrations/NNN_*.sql` | CREATE TABLE / ALTER ADD / INDEX | <table>.<col> | yes / no | yes / no |
+
+> 触红线 → 必须挂 `data-redline` skill 评审，并在 §9 列出降级方案。
+
+---
+
+## 7. 事件变更
+
+> 锚 `contracts/<bctx>/asyncapi/`；列发布 / 订阅关系变化。
+
+- [ ] 无影响 ·理由：<...>
+
+| 事件主题 | 生产者 | 消费者 | delta | schema 兼容性 |
+|---|---|---|---|---|
+| `<bctx>.<entity>.<verb>.vN` | svc-... | svc-... / svc-... | new / modify / deprecate | breaking / compatible |
+
+---
+
+## 8. SLO / 容量 / 成本影响
+
+> 锚 `tech-standards/STD-06-observability.md` + 服务 `non-functional.md`。
+
+- [ ] 无影响 ·理由：<...>
+
+| 维度 | 当前 | 预计变化 | 缓解措施 |
+|---|---|---|---|
+| 延迟 P99 | <ms> | +<ms> / -<ms> | 缓存 / 索引 / 限流 |
+| 吞吐 QPS | <n> | +<n> | 水平扩容 |
+| 月度成本 | $<n> | +$<n> | budget alert 阈值 |
+
+---
+
+## 9. 风险与降级
+
+> 与 plan.md §风险章节双锚。`gate-checklist` plan 模式 #4 要求至少 1 条带 fallback。
+
+| 风险 | 等级 | 触发条件 | 降级方案 | 责任人 |
+|---|---|---|---|---|
+| <描述> | low / medium / high | <场景> | <fallback 步骤> | <name> |
+
+---
+
+## 10. 自检（与 `self-review-agent` skill 对齐）
+
+- [ ] 每节均已勾选「无影响」或填写表格（禁空白）
+- [ ] 所有 contracts/STD/ADR/服务/迁移/事件项均带具体路径锚点
+- [ ] 高风险项（high）配套 ADR 草稿号或 fallback
+- [ ] 数据红线项已挂 `data-redline` skill 评审
+- [ ] 触发 STD/ADR 新增的项已开关联 issue（R 横切并行）
+
+---
+
+## 附：与其他文档关系
+
+- `impact-map.md`（T1 · bc-impact-map skill）：粗粒度 BC×服务×契约×数据扫描
+- `impact-analysis.md`（本文 · DoR 硬约束）：细粒度逐面影响清单 + 降级方案
+- `plan.md`（T2 · /speckit.plan）：HOW 高层方案，§风险章节双锚本文 §9
+- `docs/services/<svc>/*.md`（L2）：受影响服务的服务级 SSOT 同步更新
+- `contracts/<bctx>/*`（L3）：契约 schema SSOT 同步更新

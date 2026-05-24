@@ -47,3 +47,30 @@ paths:
 - 所有动作均映射到 ≥1 个 BC
 - 所有 high 风险项 ≥2 个候选
 - 涉及 R 横切（新 STD / ADR）的项已建关联 issue
+
+## Worked Example
+
+> 占位示例 · 待 v0.2+ 填充真实业务场景。
+
+**Input**：
+```
+specs/FEAT-042/spec.md            # Approved
+tech-docs/01_业务上下文与限界上下文.md
+tech-docs/03_微服务拆分原则与服务清单.md
+```
+
+**调用**：
+```bash
+claude skill bc-impact-map FEAT-042
+```
+
+**Output**：`specs/FEAT-042/impact-map.md`
+```markdown
+| 业务动作 | BC | 服务 | 契约 delta | 数据 delta | 风险 |
+|---|---|---|---|---|---|
+| 创建 <entity> | <bounded-context> | <service-name> | POST /<entity> (new) | <entity>.<attribute> (new) | medium |
+| 调整 <attribute> | <bounded-context> | <service-name> | PATCH /<entity>/:id (modify) | <entity>.<attribute> (modify) | high |
+
+## 候选清单依据
+- 高风险项 1：方案 A（同步改契约）vs 方案 B（事件 outbox 异步），见 ADR-NNN 草稿
+```

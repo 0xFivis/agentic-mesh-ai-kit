@@ -1,0 +1,22 @@
+<!-- REFERENCE ONLY: sanitized sample, not for production -->
+---
+paths:
+  - "contracts/**"
+---
+
+# Contracts-First Rule (Claude Code)
+
+任何对 `contracts/<bctx>/openapi/*.yaml` / `asyncapi/*.yaml` / `proto/*.proto` 的修改必须：
+
+1. **先有 spec**：在 PR 描述里引用 `specs/<feature-id>/spec.md` + `plan.md`（未 Approve 拒绝合并）
+2. **先有 ADR**（如涉及横切决策）：引用 `docs/adr/ADR-NNN`
+3. **走 contract-first skill**：用 `/contract-first <feature-id> --step=4` 生成草稿，不要手撸 YAML
+4. **`_common/` 改动单独 PR**：必须 Arch Lead Approve
+
+违反 → 评审打 ❌ + 回流。
+
+---
+
+> **命名约定**：本文件名 `contracts-first.md` 中的 `contracts-first` 是 `<topic>` 占位示例。
+> 平台落地后请按业务领域新增同位置文件，如 `api-layer.md` / `data-migration.md`。
+> 参考 [playbook §2.2](../../../playbook.md) 路径作用域规则。

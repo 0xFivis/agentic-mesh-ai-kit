@@ -58,3 +58,31 @@ specs/<feature-id>/test-matrix.md     ← 4 象限覆盖率矩阵 + 测试 ID �
 - 4 象限覆盖率 100%（每象限至少满足下限）
 - mutation kill rate ≥ 70%（如启用）
 - 所有 high 风险项均有用例覆盖
+
+## Worked Example
+
+> 占位示例 · 待 v0.2+ 填充真实业务场景。
+
+**Input**：
+```
+specs/FEAT-042/contracts/<service-name>.openapi.yaml
+specs/FEAT-042/quickstart.md
+specs/FEAT-042/impact-map.md
+specs/FEAT-042/data-model.md
+```
+
+**调用**：
+```bash
+claude skill qa-cases FEAT-042 --mutation
+```
+
+**Output**：
+```
+tests/FEAT-042/
+├── normal/test_<entity>_create.py        # quickstart 场景
+├── boundary/test_<attribute>_limits.py   # min/max/null/empty/unicode
+├── error/test_4xx_5xx.py                 # 每错误码 ≥ 1
+└── redline/test_<redline-name>.py        # impact-map high + data-redline
+specs/FEAT-042/test-matrix.md             # 4 象限覆盖率矩阵
+specs/FEAT-042/_mutation-report.md        # kill rate（启用 --mutation 时）
+```
