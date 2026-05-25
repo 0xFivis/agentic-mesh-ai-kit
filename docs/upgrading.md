@@ -31,7 +31,7 @@ cd <your-platform-repo>
 ```bash
 cat .ai-kit-version              # 应等于新 tag
 ls -la CLAUDE.md                 # 应 symlink → AGENTS.md（Step 1 idempotent）
-npx skills list                  # 12 个 skill 全 symlink ok
+npx skills list                  # 15 个 skill 全 symlink ok（13 活跃 + 2 暂停 · 见 skills/README.md）
 grep -r "prompt-file:" .github/workflows/  # 全部指向 .github/ci-prompts/review.md
 ```
 
