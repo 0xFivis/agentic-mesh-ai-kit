@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+body {
+  font-family: "PingFang SC", "Noto Sans SC", "Hiragino Sans GB", sans-serif;
+  font-size: 11pt;
+  line-height: 1.7;
+  color: #1a1a1a;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 40px;
+}
+
+h1 { font-size: 22pt; color: #1E3A5F; border-bottom: 2px solid #4A90D9; padding-bottom: 8px; }
+h2 { font-size: 15pt; color: #1E3A5F; border-bottom: 1px solid #d0d8e4; padding-bottom: 4px; margin-top: 2em; }
+h3 { font-size: 12pt; color: #2c4a70; margin-top: 1.5em; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 10pt;
+}
+thead tr { background-color: #1E3A5F; color: #ffffff; }
+thead th { padding: 8px 12px; text-align: left; font-weight: 600; }
+tbody tr:nth-child(even) { background-color: #f4f7fb; }
+tbody td { padding: 7px 12px; border-bottom: 1px solid #dde3ec; }
+
+pre {
+  background-color: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-left: 3px solid #4A90D9;
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-family: "Menlo", "Courier New", monospace;
+  font-size: 9.5pt;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+code {
+  font-family: "Menlo", "Courier New", monospace;
+  font-size: 9.5pt;
+  background-color: #eef1f5;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+
+blockquote {
+  border-left: 3px solid #4A90D9;
+  margin: 0;
+  padding: 4px 16px;
+  color: #555;
+  background: #f9fbfd;
+}
+
+hr { border: none; border-top: 1px solid #d0d8e4; margin: 2em 0; }
+
+a { color: #2563eb; }
+
+ul, ol { padding-left: 1.5em; }
+li { margin-bottom: 4px; }
+
+strong { color: #1a1a1a; }
+
+@page {
+  margin: 20mm 18mm 20mm 18mm;
+  @bottom-right { content: counter(page); font-size: 9pt; color: #888; }
+}
