@@ -1,10 +1,9 @@
 <!-- REFERENCE ONLY: sanitized sample, not for production -->
 # AI Agent Playbook · 战术手册
 
-> **本文为唯一事实源**。`ai-agent-playbook.html` 是渲染产物，最后从本文同步。
+> **本文为唯一事实源**。
 > 与 [`sop/tech-delivery-sop.md`](sop/tech-delivery-sop.md) 配套：SOP 定义"做什么 / 谁做 / Gate 在哪"（宏观工序），本手册定义"用哪家 vendor agent 怎么熟练操作"（微观协作单元）。两者分层不重叠，删本手册全部内容后 SOP 仍可执行（C1 降级）。
-> 适用：Claude Code / Cursor / GitHub Copilot / OpenAI Codex 四家主流 agent · 基于 2026/5 vendor 官方文档。
-> 视觉派生：[`diagrams/output/02-ai-collab-playbook.html`](diagrams/output/02-ai-collab-playbook.html)（**以本文为准**）。
+> 适用：Claude Code / Cursor / GitHub Copilot / OpenAI Codex 四家主流 agent 。
 
 ---
 
@@ -13,10 +12,9 @@
 **Part 1 · 组织原则**
 - [1.1 两层关系：宏观工序 × 微观协作](#11-两层关系宏观工序--微观协作)
 - [1.2 4-Phase 通用循环](#12-4-phase-通用循环)
-- [1.3 AI 能力分级](#13-ai-能力分级)
-- [1.4 装配优先级](#14-装配优先级)
-- [1.5 Feature / Task 两层结构](#15-feature--task-两层结构)
-- [1.6 三层职责模型与 SSOT 边界](#16-三层职责模型与-ssot-边界)
+- [1.3 装配优先级](#13-装配优先级)
+- [1.4 Feature / Task 两层结构](#14-feature--task-两层结构)
+- [1.5 三层职责模型与 SSOT 边界](#15-三层职责模型与-ssot-边界)
 
 **Part 2 · 配置组件全集**（每节固定 4 段：用途 / 文件位置 / 配置示例 / 跨工具对照）
 - [2.1 仓库入口文件](#21-仓库入口文件)
@@ -77,21 +75,7 @@
 
 权威来源：Anthropic Claude Code Best Practices（`code.claude.com/docs/en/best-practices`）。Cursor Plan Mode、GitHub Copilot 内置 `Plan` agent（IDE built-in，与 `Agent` / `Ask` 并列）同义，仅命名不同。详细落地见 [§3.1](#31-4-phase-落地)。
 
-### 1.3 AI 能力分级
-
-本手册用 4 色标记 AI 在每个工作项里的产出权重（审批人永远是人，由 SOP §3.5 矩阵指定）：
-
-| 标记 | 含义 | 典型 |
-|---|---|---|
-| 🟢 全自动 | AI 主导草稿，人审批复核即过 | Lint / 自检 checklist / Issue 拆分 |
-| 🟡 半自动 | AI 起草，人审批实质评审拍板 | 架构方案 / 契约 / Code Review |
-| 🟠 辅助 | AI 仅给候选与对比，人决策 | ADR 候选分析 |
-| 🔴 不可用 | 必须真人起草 | 业务验收 / 合规签字 |
-| 🟢(CI) 附加 | CI 自动化兜底（AI 主动产出 + CI 强制校验，失败即拒入合并）| 编码阶段 lint / 单测 / 契约 lint |
-
-> **复合标记规则**：基础色 = AI 草稿权重；附加 `🟢(CI)` = 该步另有 CI 自动门禁（如 T4.2 = 🟡（CI 🟢））。
-
-### 1.4 装配优先级
+### 1.3 装配优先级
 
 **同样能解决，下层不上**：
 
@@ -100,7 +84,7 @@
 3. **Subagent**（[§2.4](#24-subagents)）仅在需要独立 context window 时启用（reviewer ↔ implementer 隔离 / 并行 fan-out）
 4. **Hook**（[§2.5](#25-hooks)）仅用于不可漏的强约束（lint / 安全扫描 / 留痕）
 
-### 1.5 Feature / Task 两层结构
+### 1.4 Feature / Task 两层结构
 
 > **与 SOP 的映射**：SOP §3.1 抽象为「需求规格（feature spec）· 任务包（task package）· 跟踪条目（Issue）」三层，不锁定具体工具。本节是 HOW 层落地：选 **GitHub Spec-Kit** 作为规格包载体，下列 `specs/` 路径与 `/speckit.*` 命令均为其约定。不用 Spec-Kit 的项目可插换同等载体。
 
@@ -118,9 +102,9 @@
 - commit message 必带 `Closes #N`；PR merge 自动闭单 Issue
 - 任何 spec / contract 变更**只改目录**，不在单 task 内私改；Issue body 通过 sync hook 重生（不双写）
 
-> 调研出处与 9 条 Article 详见 [`_research/11_spec-driven-development-and-4phase.md`](_research/11_spec-driven-development-and-4phase.md)。Context Bundle 契约见 [§3.2](#32-context-bundle-契约)；feature 与服务/横切的回写关系见 [§1.6](#16-三层职责模型与-ssot-边界) 与 [§3.7](#37-回写流-4-类)。
+> 调研出处与 9 条 Article 详见 [`_research/11_spec-driven-development-and-4phase.md`](_research/11_spec-driven-development-and-4phase.md)。Context Bundle 契约见 [§3.2](#32-context-bundle-契约)；feature 与服务/横切的回写关系见 [§1.5](#15-三层职责模型与-ssot-边界) 与 [§3.7](#37-回写流-4-类)。
 
-### 1.6 三层职责模型与 SSOT 边界
+### 1.5 三层职责模型与 SSOT 边界
 
 > 引自 `design-philosophy §1+§2`（D12 / D13）。本节给 playbook 落地必须的「心智锚点」；治理细则待 [`arch-kit/docs/architecture/00_governance.md`](../agentic-mesh-arch-kit/docs/architecture/00_governance.md)（Phase C 建）。
 
@@ -362,25 +346,23 @@ paths:                             # 限定生效范围（可选）
 
 **本工作流提供的 15 个 Skill（权威索引 · 含 2 个暂停）**：
 
-> 本表为 Skill ↔ SOP 步骤的**唯一权威绑定源**。[§3.6](#36-sop-步骤--装配速查表) 速查表只引用、不重定义。
-
-| Skill | 对应 SOP | 用途 | 状态 |
-|---|---|---|---|
-| `tech-intake` | T0 | spec.md 二次自检（spec-kit 增强型 · 非必选）| 活跃 |
-| `bc-impact-map` | T1 | 限界上下文 / 服务影响地图 | 活跃 |
-| ~~`contract-first`~~ | T2 | OpenAPI / 事件 schema / 数据迁移 | **暂停**（被 `/speckit.plan` 替代）|
-| ~~`task-decomp-fanout`~~ | T3 | `tasks.md` + 派生 Issue | **暂停**（被 `/speckit.tasks` + `/speckit.taskstoissues` 替代）|
-| `task-plan-drafting` | T4.1 | 单 task 技术方案 + 实施步骤草稿 | 活跃 |
-| `gate-checklist` | T4.1 + T4.3（单 skill 两处复用）| Plan 自评 5 条 + Code Review 5 条红旗 | 活跃 |
-| `self-review-agent` | T4.2 | 编码者自审 lint+（非强制）| 活跃 |
-| `qa-cases` | T4.4 | 测试用例生成 + 探索性 mutation 测试 | 活跃 |
-| `release-canary` | T5 | 灰度方案 + 回滚剧本（AI 无 prod 写权限）| 活跃 |
-| `retro-audit` | T7 | audit checklist + auto memory 沉淀 | 活跃 |
-| `adr-writing` | R（横切）| ADR 模板 + ≥2 候选决策矩阵 | 活跃 |
-| `std-writing` | R（横切）| STD-NN 标准草稿模板填充 | 活跃 |
-| `data-redline` | 横切（始终在 context）| 资料 4 级 + 8 红线 | 活跃 |
-| `scaffold-agents-md` | 横切（按需调用）| 业务子域 AGENTS.md 生成 | 活跃 |
-| `new-service-bootstrap` | T4 特殊 lane | 新建服务 3 步引导 | 活跃 |
+| Skill | 用途 | 状态 |
+|---|---|---|
+| `tech-intake` | spec.md 二次自检（spec-kit 增强型 · 非必选）| 活跃 |
+| `bc-impact-map` | 限界上下文 / 服务影响地图 | 活跃 |
+| ~~`contract-first`~~ | OpenAPI / 事件 schema / 数据迁移 | **暂停**（被 `/speckit.plan` 替代）|
+| ~~`task-decomp-fanout`~~ | `tasks.md` + 派生 Issue | **暂停**（被 `/speckit.tasks` + `/speckit.taskstoissues` 替代）|
+| `task-plan-drafting` | 单 task 技术方案 + 实施步骤草稿 | 活跃 |
+| `gate-checklist` | Plan 自评 5 条 + Code Review 5 条红旗（单 skill 两处复用）| 活跃 |
+| `self-review-agent` | 编码者自审 lint+（非强制）| 活跃 |
+| `qa-cases` | 测试用例生成 + 探索性 mutation 测试 | 活跃 |
+| `release-canary` | 灰度方案 + 回滚剧本（AI 无 prod 写权限）| 活跃 |
+| `retro-audit` | audit checklist + auto memory 沉淀 | 活跃 |
+| `adr-writing` | ADR 模板 + ≥2 候选决策矩阵 | 活跃 |
+| `std-writing` | STD-NN 标准草稿模板填充 | 活跃 |
+| `data-redline` | 资料 4 级 + 8 红线（始终在 context）| 活跃 |
+| `scaffold-agents-md` | 业务子域 AGENTS.md 生成（按需调用）| 活跃 |
+| `new-service-bootstrap` | 新建服务 3 步引导（T4 特殊 lane）| 活跃 |
 
 **跨工具对照**：Cursor 2.4+ / Copilot Agent Skills / Codex 均认 agentskills.io字段同形，可软链或脚本同步一份 SKILL.md。
 
@@ -391,7 +373,7 @@ paths:                             # 限定生效范围（可选）
 2. **并行 fan-out**（同时探索 5 个服务的 BC 影响）
 3. **不同模型 / 权限**（security-auditor 用 Opus，implementer 用 Sonnet）
 
-否则用 Skill 即可（见 [§1.4 装配优先级](#14-装配优先级)）。
+否则用 Skill 即可（见 [§1.3 装配优先级](#13-装配优先级)）。
 
 **文件位置**：`.claude/agents/<name>.md`。跨工具同构但格式不同：`.cursor/agents/*.md`（同时识别 `.claude/agents/` / `.codex/agents/`）· `.github/agents/*.agent.md`（兼容 `.claude/agents/*.md`）· **`.codex/agents/*.toml`**（[Codex 用 TOML 而非 Markdown](https://developers.openai.com/codex/subagents)）。
 
@@ -722,18 +704,13 @@ AI 起草的任何工件都必须**自动生成给审批人的结构化检查记
 
 ### 3.6 SOP 步骤 ↔ 装配速查表
 
-> 本表只回答"每步做什么 + 用什么装配"，所有装配的定义全部在 Part 2，不重复。
-> Gate 定义、审批人矩阵、判据规则全部在 [SOP](sop/tech-delivery-sop.md)。
-> **R 横切仪式不占主序号**，可在任意步触发（详见 SOP §1.1）；附表单列，**不构成序列位置**。
-> AI 能力分级（🟢/🟡/🟠/🔴）参 [§1.3](#13-ai-能力分级)；本表不再单列分级列。
-
 **主表**（每行 = 1 SOP 步骤）：
 
 | SOP 步骤 | 工作内容（目标）| AI 执行（skill + spec-kit）| 产物 | 人审 Gate（强制）|
 |---|---|---|---|---|
 | **T0** Intake | 把需求收敛成可执行 spec（含范围、验收、风险、约束）| `/speckit.specify` [+ `/speckit.clarify`] + `tech-intake` skill（对 spec.md 二次自检 · 非必选增强）| `specs/NNN/spec.md` | PO + TL |
 | **T1** 影响分析 | 识别变更涉及的 BC × 服务 × 契约 × 数据，标注架构增量 | `bc-impact-map` skill | `specs/NNN/impact-analysis.md` | 架构师 |
-| **T2** 详设/契约 | 把 spec 落成详细设计、数据模型、契约、上手指南 | `/speckit.plan` + `/speckit.checklist` + `/speckit.analyze` | `specs/NNN/{plan.md, data-model.md, contracts/*, quickstart.md}` + 触发回写①（契约汇总，[§3.7](#37-回写流-4-类)）| 架构师 + 服务 Owner 全签 |
+| **T2** 服务详设/契约 | 把 spec 落成详细设计、数据模型、契约、上手指南 | `/speckit.plan` + `/speckit.checklist` + `/speckit.analyze` | `specs/NNN/{plan.md, data-model.md, contracts/*, quickstart.md}` + 触发回写①（契约汇总，[§3.7](#37-回写流-4-类)）| 架构师 + 服务 Owner 全签 |
 | **T3** 任务拆分 | 把详设拆成可独立交付的 task，明确依赖与并行度 | `/speckit.tasks` + `/speckit.taskstoissues` | `specs/NNN/tasks.md` + 派生 Issues | TL approve |
 | **T4.1** task 级实施方案 | 单 task 内写出技术方案、实施步骤、自测策略、风险点，并通过 5 条 checklist | `task-plan-drafting` skill 起草方案 + `gate-checklist` skill 跑 5 条 checklist | task 内 plan section + checklist 结果（**落点优先级**：默认 GitHub Issue body；多 task 复杂方案落 `specs/NNN/tasks/<task-id>-plan.md`）| TL（5 条全过）|
 | **T4.2** 编码 + 自审 + CI | 实现代码 + 写测试 + 跑自测 + 推 PR | `/speckit.implement` + 4-Phase 嵌套（[§3.1](#31-4-phase-落地)）+ `self-review-agent` skill + hooks | 可运行代码 + 通过的测试 + 绿色 CI + 触发回写②（数据 DDL → `migrations/`，CI 自动生 `_data-index.md`）| CI 全绿 |
@@ -749,7 +726,7 @@ AI 起草的任何工件都必须**自动生成给审批人的结构化检查记
 | 类目 | 工作内容（目标）| AI 执行 | 产物 | 人审 Gate |
 |---|---|---|---|---|
 | **横切 R** STD/ADR 治理 + 红线监控 | 维护标准与决策记录，监控架构债与红线 | `std-writing` / `adr-writing` / `data-redline` skill（`/speckit.constitution` 算半个）| STD-NN / ADR-NNNN / 季度治理报告 | 架构组 / 标准组 |
-| **特殊 task** 新建服务类 task（属 T4 阶段）| 按 3 步建服务（架构设计实施 · 非编码）| `new-service-bootstrap` skill 引导 3 步：① `_context-map.yaml` 注册 bctx → ② 跑 `scripts/new-service.sh --type api\|worker\|saga\|gateway` → ③ 基于 spec.md 填强制文件草稿 | bctx 注册 + 服务骨架 + 3 强制 + 按需文件草稿（详 [§1.6](#16-三层职责模型与-ssot-边界)）| 架构组 review（非代码 review）|
+| **特殊 task** 新建服务类 task（属 T4 阶段）| 按 3 步建服务（架构设计实施 · 非编码）| `new-service-bootstrap` skill 引导 3 步：① `_context-map.yaml` 注册 bctx → ② 跑 `scripts/new-service.sh --type api\|worker\|saga\|gateway` → ③ 基于 spec.md 填强制文件草稿 | bctx 注册 + 服务骨架 + 3 强制 + 按需文件草稿（详 [§1.5](#15-三层职责模型与-ssot-边界)）| 架构组 review（非代码 review）|
 
 **关键统计**：主表 12 行 + 附表 2 行 = 14 行；spec-kit 命令对位 = 4 行 ≈ 29%（T0/T2/T3/T4.2）；其余靠 ai-kit skills（含 `task-plan-drafting` / `self-review-agent` / `new-service-bootstrap` 三个新增、`contract-first` / `task-decomp-fanout` 两个暂停）+ 人工兜底；**去 AI 可降级**（C1 契约）：任一步去掉 AI 列后，仍可由人完成「工作内容」产出同一「产物」。
 
@@ -775,7 +752,7 @@ AI 起草的任何工件都必须**自动生成给审批人的结构化检查记
 **红线**：
 
 - 不得反向流（L3 不读 L1；详 design-philosophy §5 R9）
-- VIEW 文件不复制 SSOT 的 schema / 枚举 / 字段（[§1.6](#16-三层职责模型与-ssot-边界) 红线 1）
+- VIEW 文件不复制 SSOT 的 schema / 枚举 / 字段（[§1.5](#15-三层职责模型与-ssot-边界) 红线 1）
 - `_data-index.md` 头部 `AUTO-GENERATED, DO NOT EDIT`，人改即漂移
 
 ### 3.8 紧急 lane · gate:waived 授权机制
